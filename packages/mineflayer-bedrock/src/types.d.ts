@@ -6,7 +6,7 @@ import { Block } from "prismarine-block";
 import { protocolTypes } from './protocol.js';
 import * as pathfinder from 'mineflayer-pathfinder'
 
-interface Viewer extends EventEmitter<{ 'blockClicked': [RaycastBlock & Block, number, number] }> {
+interface Viewer extends EventEmitter<{ 'blockClicked': [RaycastBlock & Block, number, number], gamepad: [any] }> {
     erase(id: string): void;
     drawBoxGrid(id: string, start: Vec3, end: Vec3, color?: string): void
     drawLine(id: string, points: Vec3[], color?: string | number): void;
@@ -33,6 +33,12 @@ declare module 'mineflayer' {
     }
     interface BotOptions {
         offline?: boolean
+        bedrockViewer?:{
+            viewDistance?: number
+            firstPerson?: boolean
+            port?: number
+            prefix?: string
+        }
     }
 }
 

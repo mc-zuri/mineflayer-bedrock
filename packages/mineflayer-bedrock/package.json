@@ -10,9 +10,13 @@
   },
   "license": "MIT",
   "dependencies": {
+    "@types/compression": "^1.8.1",
+    "@types/express": "^5.0.6",
+    "compression": "^1.8.1",
     "csbinary": "^2.1.4",
+    "express": "^4.21.2",
     "mineflayer": "^4.0.0",
-    "prismarine-physics": "^1.10.0",
-    "mineflayer-pathfinder": "^2.4.5"
+    "mineflayer-pathfinder": "^2.4.5",
+    "prismarine-physics": "^1.10.0"
   }
 }

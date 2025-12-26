@@ -5,5 +5,8 @@
     "private": true,
     "scripts": {
         "start": "node --experimental-strip-types  --disable-warning=ExperimentalWarning packages/mineflayer-bedrock/src/main.ts"
+    },
+    "dependencies": {
+        "bedrock-protocol": "^3.52.0"
     }
 }

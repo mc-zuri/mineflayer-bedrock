@@ -5,6 +5,7 @@ import { viewerPlugin } from './plugins/viewer.ts'
 import { viewerClickToMovePlugin } from './plugins/viewer-click-to-move.ts'
 import { pathFinderFollowPlugin } from './plugins/pathfinder-follow.ts';
 import type { protocolTypes } from './protocol.js';
+import { bedrockViewerPlugin } from './plugins/bedrock-viewer/index.ts';
 
 const bot = createBot({
     host: '127.0.0.1',
@@ -64,8 +65,21 @@ bot.once('spawn', () => {
     console.log('Bot spawned!');
 
     console.log('loading viewer plugin');
-    bot.loadPlugin(viewerPlugin);
+    bot.loadPlugin(bedrockViewerPlugin);
 
     console.log('loading viewer - click to move plugin');
     bot.loadPlugin(viewerClickToMovePlugin);
 })
+
+// Handle graceful shutdown on Ctrl+C
+process.on('SIGINT', () => {
+    console.log('Shutting down bot...');
+    try {
+        bot.close();
+        setTimeout(() => {
+            process.exit(0);
+        }, 100);
+    } catch {
+        process.exit(0);
+    }
+});
