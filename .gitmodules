@@ -4,9 +4,6 @@
 [submodule "packages/minecraft-data"]
 	path = packages/minecraft-data
 	url = https://github.com/mc-zuri/node-minecraft-data.git
-[submodule "packages/mineflayer-pathfinder"]
-	path = packages/mineflayer-pathfinder
-	url = https://github.com/mc-zuri/mineflayer-pathfinder.git
 [submodule "packages/prismarine-viewer"]
 	path = packages/prismarine-viewer
 	url = https://github.com/mc-zuri/prismarine-viewer.git

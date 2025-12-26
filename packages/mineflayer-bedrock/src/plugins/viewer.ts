@@ -17,7 +17,7 @@ export function viewerPlugin(bot: Bot, options: BotOptions) {
     };
 
     const proxy = createProxy(bot);
-    prismarineViewer.mineflayer(proxy, { port: 3000, firstPerson: false, viewDistance: 5, });
+    prismarineViewer.mineflayer(proxy, { port: 3000, firstPerson: false, viewDistance: 3, });
 
     bot.on('path_update', (r) => {
         const nodesPerTick = (r.visitedNodes * 50 / r.time).toFixed(2)
@@ -39,10 +39,10 @@ export function viewerPlugin(bot: Bot, options: BotOptions) {
 }
 
 function createProxy(bot: Bot): Bot {
-    const javaMcData = mcData("1.21.4");
-    const javaRegistry = mcRegistry("1.21.4");
+    const javaMcData = mcData("1.21.11");
+    const javaRegistry = mcRegistry("1.21.11");
     const JavaChunkColumn = mcChunkLoader(javaRegistry);
-    const javaWorldContructor = mcWorldLoader("1.21.4");
+    const javaWorldContructor = mcWorldLoader("1.21.11");
     const javaWorld = new javaWorldContructor((x, z) => worldGenerator(x, z, JavaChunkColumn, bot, javaMcData), null, 0);
 
     return new Proxy(bot, {
@@ -52,7 +52,7 @@ function createProxy(bot: Bot): Bot {
             } else if (prop === "registry") {
                 return javaRegistry;
             } else if (prop === "version") {
-                return "1.21.4";
+                return "1.21.11";
             }
 
             return target[prop] || Reflect.get(target, prop, receiver);

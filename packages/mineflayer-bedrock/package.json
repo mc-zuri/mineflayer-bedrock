@@ -12,6 +12,7 @@
   "dependencies": {
     "csbinary": "^2.1.4",
     "mineflayer": "^4.0.0",
-    "prismarine-physics": "^1.10.0"
+    "prismarine-physics": "^1.10.0",
+    "mineflayer-pathfinder": "^2.4.5"
   }
 }
