@@ -1,25 +1,25 @@
 [submodule "packages/mineflayer"]
 	path = packages/mineflayer
-	url = https://github.com/bedrock-bot/mineflayer-bedrock-public.git
+	url = https://github.com/mc-zuri/mineflayer-bedrock-public.git
 [submodule "packages/minecraft-data"]
 	path = packages/minecraft-data
-	url = https://github.com/bedrock-bot/node-minecraft-data.git
+	url = https://github.com/mc-zuri/node-minecraft-data.git
 [submodule "packages/mineflayer-pathfinder"]
 	path = packages/mineflayer-pathfinder
-	url = https://github.com/bedrock-bot/mineflayer-pathfinder.git
+	url = https://github.com/mc-zuri/mineflayer-pathfinder.git
 [submodule "packages/prismarine-viewer"]
 	path = packages/prismarine-viewer
-	url = https://github.com/bedrock-bot/prismarine-viewer.git
+	url = https://github.com/mc-zuri/prismarine-viewer.git
 [submodule "packages/prismarine-registry"]
 	path = packages/prismarine-registry
-	url = https://github.com/bedrock-bot/prismarine-registry.git
+	url = https://github.com/mc-zuri/prismarine-registry.git
 [submodule "packages/prismarine-chunk"]
 	path = packages/prismarine-chunk
-	url = https://github.com/bedrock-bot/prismarine-chunk.git
+	url = https://github.com/mc-zuri/prismarine-chunk.git
 	branch = bugfix/use-blocksByRuntimeId
 [submodule "packages/bedrock-protocol"]
 	path = packages/bedrock-protocol
-	url = https://github.com/bedrock-bot/bedrock-protocol.git
+	url = https://github.com/mc-zuri/bedrock-protocol.git
 [submodule "packages/node-minecraft-assets"]
 	path = packages/node-minecraft-assets
-	url = https://github.com/bedrock-bot/node-minecraft-assets.git
+	url = https://github.com/mc-zuri/node-minecraft-assets.git
