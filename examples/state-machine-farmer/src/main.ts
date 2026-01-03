@@ -1,4 +1,4 @@
-import { startBDSServer, ensureBDSInstalled } from 'minecraft-bedrock-tests';
+import { startExternalServer, ensureBDSInstalled } from 'minecraft-bedrock-test-server';
 import { VERSION, BDS_PATH } from './config.ts';
 import { setupFarm } from './setup.ts';
 import { createFarmingBot, startStateMachine } from './bot-setup.ts';
@@ -11,7 +11,7 @@ async function main(): Promise<void> {
   console.log('Starting State Machine Farmer...');
 
   await ensureBDSInstalled(VERSION, BDS_PATH);
-  const server = await startBDSServer({ port });
+  const server = await startExternalServer({ port, bdsPath: BDS_PATH });
   const bot = createFarmingBot({ host, port, version: VERSION });
 
   bot.on('error', (err) => console.error('Bot error:', err));

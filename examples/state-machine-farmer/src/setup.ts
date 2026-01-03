@@ -1,8 +1,8 @@
-import { giveItem, setBlock, teleportPlayer, type BDSServer } from 'minecraft-bedrock-tests';
+import { giveItem, setBlock, teleportPlayer, type ExternalServer } from 'minecraft-bedrock-test-server';
 import { FARM_BASE_X, FARM_BASE_Y, FARM_BASE_Z, FARM_SIZE, getWaterPositions, STARTING_ITEMS } from './config.ts';
 import { sleep } from './utils/index.ts';
 
-export async function setupFarm(server: BDSServer, playerName: string): Promise<void> {
+export async function setupFarm(server: ExternalServer, playerName: string): Promise<void> {
   console.log('Setting up farm...');
   const { baseX, baseY, baseZ, size } = {
     baseX: FARM_BASE_X,
@@ -31,12 +31,12 @@ export async function setupFarm(server: BDSServer, playerName: string): Promise<
   console.log('Farm setup complete!');
 }
 
-async function createFarmland(server: BDSServer, x: number, y: number, z: number, size: number): Promise<void> {
+async function createFarmland(server: ExternalServer, x: number, y: number, z: number, size: number): Promise<void> {
   await server.sendCommand(`fill ${x - size} ${y} ${z - size} ${x + size} ${y} ${z + size} farmland`);
   await sleep(100);
 }
 
-async function addWaterSources(server: BDSServer, x: number, y: number, z: number, size: number): Promise<void> {
+async function addWaterSources(server: ExternalServer, x: number, y: number, z: number, size: number): Promise<void> {
   for (const [dx, dz] of getWaterPositions(size)) {
     await server.sendCommand(`setblock ${x + dx} ${y} ${z + dz} water`);
     await server.sendCommand(`setblock ${x + dx} ${y} ${z + dz} stone_slab ["stone_slab_type"="smooth_stone","top_slot_bit"=true]`);
@@ -45,14 +45,14 @@ async function addWaterSources(server: BDSServer, x: number, y: number, z: numbe
   await sleep(100);
 }
 
-async function removeTemporaryBlocks(server: BDSServer, x: number, y: number, z: number, size: number): Promise<void> {
+async function removeTemporaryBlocks(server: ExternalServer, x: number, y: number, z: number, size: number): Promise<void> {
   for (const [dx, dz] of getWaterPositions(size)) {
     await server.sendCommand(`setblock ${x + dx} ${y + 1} ${z + dz} air`);
   }
   await sleep(100);
 }
 
-async function plantCrops(server: BDSServer, x: number, y: number, z: number, size: number): Promise<void> {
+async function plantCrops(server: ExternalServer, x: number, y: number, z: number, size: number): Promise<void> {
   const crops = [
     { name: 'carrots', x1: x - size, z1: z - size, x2: x - 1, z2: z - 1 },
     { name: 'potatoes', x1: x + 1, z1: z - size, x2: x + size, z2: z - 1 },
@@ -69,7 +69,7 @@ async function plantCrops(server: BDSServer, x: number, y: number, z: number, si
   await sleep(100);
 }
 
-async function placeTree(server: BDSServer, x: number, y: number, z: number): Promise<void> {
+async function placeTree(server: ExternalServer, x: number, y: number, z: number): Promise<void> {
   await setBlock(server, x, y, z, 'dirt');
   for (let i = 1; i <= 6; i++) {
     await server.sendCommand(`setblock ${x} ${y + i} ${z} oak_log`);

@@ -1,5 +1,8 @@
+import * as os from 'os';
+
 export const VERSION = '1.21.130';
-export const BDS_PATH = `c:/apps/bds-${VERSION}`;
+const isWindows = os.platform() === 'win32';
+export const BDS_PATH = process.env.BDS_PATH || (isWindows ? `c:/apps/bds-${VERSION}` : `${os.homedir()}/apps/bds-${VERSION}`);
 
 export const FARM_BASE_X = 20;
 export const FARM_BASE_Y = -1;
