@@ -527,6 +527,18 @@ async function main(): Promise<void> {
   server = await startExternalServer({ port, bdsPath: BDS_PATH });
   console.log('BDS server started!');
 
+  // Print connection details and wait for user to connect
+  console.log('\n========================================');
+  console.log('  CONNECTION DETAILS');
+  console.log('========================================');
+  console.log(`  Host: ${host}`);
+  console.log(`  Port: ${port}`);
+  console.log(`  BDS:  ${BDS_PATH}`);
+  console.log('========================================');
+  console.log('  Waiting 10 seconds before bot connects...');
+  console.log('========================================\n');
+  await sleep(10000);
+
   // Create bot with packet logger
   console.log(`Connecting bot to ${host}:${port}...`);
   bot = createBot({
