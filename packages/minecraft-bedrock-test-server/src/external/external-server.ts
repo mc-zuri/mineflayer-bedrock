@@ -160,7 +160,7 @@ function getDefaultOptions(): ExternalServerOptions {
     gamemode: 'survival',
     difficulty: 'peaceful',
     allowCheats: true,
-    autoDownload: false,
+    autoDownload: true,
   };
 }
 
