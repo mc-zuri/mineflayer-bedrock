@@ -1,0 +1,26 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "type": "minecraft-js",
+        "request": "attach",
+        "name": "Wait for Minecraft to Connect",
+        "mode": "connect",
+        "preLaunchTask": "deploy",
+        "sourceMapRoot": "${workspaceFolder}/dist/debug/",
+        "generatedSourceRoot": "${workspaceFolder}/dist/scripts/",
+        "port": 19144
+      },
+      {
+        "type": "minecraft-js",
+        "request": "attach",
+        "name": "Connect to BDS",
+        "mode": "connect",
+        "preLaunchTask": "deploy",
+        "sourceMapRoot": "${workspaceFolder}/dist/debug/",
+        "generatedSourceRoot": "${workspaceFolder}/dist/scripts/",
+        "host": "localhost",
+        "port": 19144
+      }
+    ]
+  }
