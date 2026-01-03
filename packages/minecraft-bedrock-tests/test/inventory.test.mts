@@ -131,13 +131,16 @@ describe('BDS Integration: Inventory', function () {
     });
 
     it('should return block inventory from server', async () => {
-      // Teleport to chest location and wait for chunks
-      await teleportPlayer(server, bot.username, -8, 0, 0);
-      //await sleep(1000);
+      // Place a chest at a known location
+      const chestPos = { x: 5, y: 0, z: 5 };
+      await teleportPlayer(server, bot.username, chestPos.x + 1, chestPos.y + 1, chestPos.z);
       await bot.waitForChunksToLoad();
+      await setBlock(server, chestPos.x, chestPos.y, chestPos.z, 'chest');
 
-      // Query chest at known position
-      const chestPos = { x: -9, y: 0, z: 0 };
+      // Wait for chest to appear
+      await waitFor(() => bot.blockAt(new Vec3(chestPos.x, chestPos.y, chestPos.z))?.name === 'chest', 5000);
+
+      // Query chest inventory
       const chestInventory = await getServerBlockInventory(server, chestPos.x, chestPos.y, chestPos.z);
 
       expect(chestInventory).toBeTruthy();
@@ -188,10 +191,10 @@ describe('BDS Integration: Inventory', function () {
 
   describe('Moving Items', () => {
     it('should move item to another empty slot', async () => {
-      await giveItem(server, bot.username, 'diamond', 64);
-      await waitFor(() => hasItem('diamond'), 5000);
+      await giveItem(server, bot.username, 'emerald', 64);
+      await waitFor(() => hasItem('emerald'), 5000);
 
-      const item = findItem('diamond')!;
+      const item = findItem('emerald')!;
       const originalSlot = item.slot;
       // Find an empty slot
       let targetSlot = -1;
@@ -207,13 +210,13 @@ describe('BDS Integration: Inventory', function () {
       await bot.moveSlotItem(originalSlot, targetSlot);
 
       // Verify the move
-      await waitFor(() => bot.inventory.slots[targetSlot]?.name === 'diamond' && !bot.inventory.slots[originalSlot], 5000);
+      await waitFor(() => bot.inventory.slots[targetSlot]?.name === 'emerald' && !bot.inventory.slots[originalSlot], 5000);
 
-      expect(bot.inventory.slots[targetSlot]?.name).toBe('diamond');
+      expect(bot.inventory.slots[targetSlot]?.name).toBe('emerald');
       expect(bot.inventory.slots[targetSlot]?.count).toBe(64);
       expect(bot.inventory.slots[originalSlot]).toBeFalsy();
 
-      await assertInventorySync('After moving diamond to empty slot');
+      await assertInventorySync('After moving emerald to empty slot');
     });
 
     it('should swap items when moving to occupied slot', async () => {
@@ -445,42 +448,26 @@ describe('BDS Integration: Inventory', function () {
   });
 
   describe('Container Operations', () => {
-    // Container opening requires further investigation into bedrock-protocol
-    // The packets are being sent correctly but BDS doesn't respond with container_open
-    // This may be related to client initialization or player_auth_input handling
+    // Test chest position - placed dynamically by each test
+    const chestPos = { x: 10, y: 0, z: 10 };
 
-    it('should open and close a chest', async () => {
-      // Fresh flat world is copied each test run, use fixed coordinates
-      // First, check where the ground is and place chest there
-
-      // Teleport bot to (10, -50, 10) - high enough to be safe
-      await teleportPlayer(server, bot.username, -8, 0, 0);
-      //await sleep(1000);
+    async function setupChestArea() {
+      // Teleport bot to test area
+      await teleportPlayer(server, bot.username, chestPos.x + 1, chestPos.y + 1, chestPos.z);
       await bot.waitForChunksToLoad();
 
-      let pos = new Vec3(-9, 0, 0);
-      // Log where bot ended up
-      console.log('DEBUG: Bot spawned at:', bot.entity.position);
+      // Place a chest
+      await setBlock(server, chestPos.x, chestPos.y, chestPos.z, 'chest');
 
-      // Place chest at same Y level as bot (next to them)
-      //const chestY = Math.floor(bot.entity.position.y);
-      //console.log('DEBUG: Placing chest at Y:', chestY);
-      //await setBlock(server, 11, chestY, 10, 'chest');
-      ////await sleep(500);
+      // Wait for chest to appear
+      await waitFor(() => bot.blockAt(new Vec3(chestPos.x, chestPos.y, chestPos.z))?.name === 'chest', 5000);
+    }
 
-      // Wait for chest block to appear in bot's world
-      //console.log('DEBUG: Waiting for chest block at (11,', chestY, ', 10)...');
-      // await waitFor(() => {
-      //   const block = bot.blockAt(new Vec3(11, chestY, 10));
-      //   if (block) {
-      //     console.log('DEBUG: Block at position:', block.name, 'stateId:', (block as any).stateId);
-      //   }
-      //   return block?.name === 'chest';
-      // }, 10000);
+    it('should open and close a chest', async () => {
+      await setupChestArea();
 
+      const pos = new Vec3(chestPos.x, chestPos.y, chestPos.z);
       const chestBlock = bot.blockAt(pos)!;
-      console.log('DEBUG: Chest found, stateId:', (chestBlock as any).stateId);
-      console.log('DEBUG: Bot position:', bot.entity.position);
       expect(chestBlock).toBeTruthy();
       expect(chestBlock.name).toBe('chest');
 
@@ -501,11 +488,7 @@ describe('BDS Integration: Inventory', function () {
     });
 
     it('should deposit items to a chest', async () => {
-      // Use existing chest at (-9, 0, 0) in flat world
-      const chestPos = { x: -9, y: 0, z: 0 };
-      await teleportPlayer(server, bot.username, -8, 0, 0);
-      //await sleep(1000);
-      await bot.waitForChunksToLoad();
+      await setupChestArea();
 
       const pos = new Vec3(chestPos.x, chestPos.y, chestPos.z);
 
@@ -552,18 +535,10 @@ describe('BDS Integration: Inventory', function () {
       expect(totalDiamondsInChest).toBe(10);
     });
 
-    it('should deposit multiple  items to a chest', async () => {
-      // Use existing chest at (-9, 0, 0) in flat world
-      const chestPos = { x: -9, y: 0, z: 0 };
-      await teleportPlayer(server, bot.username, -8, 0, 0);
-      await bot.waitForChunksToLoad();
+    it('should deposit multiple items to a chest', async () => {
+      await setupChestArea();
 
       const pos = new Vec3(chestPos.x, chestPos.y, chestPos.z);
-
-      // Record initial diamond count in chest (chest may have items from previous tests)
-      const initialChestInventory = await getServerBlockInventory(server, chestPos.x, chestPos.y, chestPos.z);
-      const initialDiamonds = initialChestInventory.items.filter((i) => i.name === 'diamond');
-      const initialDiamondCount = initialDiamonds.reduce((sum, i) => sum + i.count, 0);
 
       // Give the player some items
       await giveItem(server, bot.username, 'diamond', 32);
@@ -608,20 +583,16 @@ describe('BDS Integration: Inventory', function () {
       expect(remainingDiamond!.count).toBe(31);
       await assertInventorySync('Player inventory after deposit');
 
-      // Verify chest contents on server (deposited 1 additional diamond)
+      // Verify chest contents on server (deposited 1 diamond to fresh chest)
       const chestInventory = await getServerBlockInventory(server, chestPos.x, chestPos.y, chestPos.z);
       const chestDiamonds = chestInventory.items.filter((i) => i.name === 'diamond');
       expect(chestDiamonds.length).toBeGreaterThan(0);
       const totalDiamondsInChest = chestDiamonds.reduce((sum, i) => sum + i.count, 0);
-      expect(totalDiamondsInChest).toBe(initialDiamondCount + 1);
+      expect(totalDiamondsInChest).toBe(1);
     });
 
     it('should withdraw items from a chest', async () => {
-      // Use existing chest at (-9, 0, 0) in flat world
-      const chestPos = { x: -9, y: 0, z: 0 };
-      await teleportPlayer(server, bot.username, -8, 0, 0);
-      //await sleep(1000);
-      await bot.waitForChunksToLoad();
+      await setupChestArea();
 
       const pos = new Vec3(chestPos.x, chestPos.y, chestPos.z);
 
