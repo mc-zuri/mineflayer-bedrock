@@ -1,16 +1,8 @@
-import type { Bot } from "mineflayer";
-import type { Vec3 } from "vec3";
-import {
-  SEARCH_RADIUS,
-  DEPOSIT_THRESHOLD,
-  HARVEST_ITEMS,
-  CROP_BLOCKS,
-  LOG_BLOCKS,
-  MAX_CROP_GROWTH,
-} from "../constants.ts";
+import type { Bot } from 'mineflayer';
+import type { Vec3 } from 'vec3';
+import { SEARCH_RADIUS, DEPOSIT_THRESHOLD, HARVEST_ITEMS, CROP_BLOCKS, LOG_BLOCKS, MAX_CROP_GROWTH } from '../constants.ts';
 
-export const sleep = (ms: number): Promise<void> =>
-  new Promise(resolve => setTimeout(resolve, ms));
+export const sleep = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
 
 export function needsDeposit(bot: Bot): boolean {
   const allItems = bot.inventory.itemsRange(0, 36);
@@ -60,7 +52,7 @@ export function findMatureCrop(bot: Bot): Vec3 | null {
 }
 
 export function findEmptyFarmland(bot: Bot): Vec3 | null {
-  const farmlandType = bot.registry.blocksByName["farmland"];
+  const farmlandType = bot.registry.blocksByName['farmland'];
   if (!farmlandType) return null;
 
   const found = bot.findBlocks({
@@ -71,7 +63,7 @@ export function findEmptyFarmland(bot: Bot): Vec3 | null {
 
   for (const pos of found) {
     const blockAbove = bot.blockAt(pos.offset(0, 1, 0));
-    if (blockAbove && blockAbove.name === "air") {
+    if (blockAbove && blockAbove.name === 'air') {
       return pos;
     }
   }
@@ -109,15 +101,24 @@ export function findTreeBase(bot: Bot): TreeBase | null {
 
 export function getNeighborPositions(pos: Vec3): Vec3[] {
   return [
-    pos.offset(0, 1, 0), pos.offset(0, -1, 0),
-    pos.offset(1, 0, 0), pos.offset(-1, 0, 0),
-    pos.offset(0, 0, 1), pos.offset(0, 0, -1),
-    pos.offset(1, 0, 1), pos.offset(1, 0, -1),
-    pos.offset(-1, 0, 1), pos.offset(-1, 0, -1),
-    pos.offset(1, 1, 0), pos.offset(-1, 1, 0),
-    pos.offset(0, 1, 1), pos.offset(0, 1, -1),
-    pos.offset(1, 1, 1), pos.offset(1, 1, -1),
-    pos.offset(-1, 1, 1), pos.offset(-1, 1, -1),
+    pos.offset(0, 1, 0),
+    pos.offset(0, -1, 0),
+    pos.offset(1, 0, 0),
+    pos.offset(-1, 0, 0),
+    pos.offset(0, 0, 1),
+    pos.offset(0, 0, -1),
+    pos.offset(1, 0, 1),
+    pos.offset(1, 0, -1),
+    pos.offset(-1, 0, 1),
+    pos.offset(-1, 0, -1),
+    pos.offset(1, 1, 0),
+    pos.offset(-1, 1, 0),
+    pos.offset(0, 1, 1),
+    pos.offset(0, 1, -1),
+    pos.offset(1, 1, 1),
+    pos.offset(1, 1, -1),
+    pos.offset(-1, 1, 1),
+    pos.offset(-1, 1, -1),
   ];
 }
 

@@ -1,35 +1,24 @@
-import { createBot, type BedrockBot, type Bot } from "mineflayer";
-import { sleep } from "mineflayer/lib/promise_utils.js";
-import mineflayerPathfinder from "mineflayer-pathfinder";
-import type { Block } from "prismarine-block";
-import { Vec3 } from "vec3";
-import {
-  startBDSServer,
-  ensureBDSInstalled,
-  giveItem,
-  setBlock,
-  teleportPlayer,
-  type BDSServer,
-  getClientInventory,
-  getServerInventory,
-  assertInventoryMatch,
-} from "mineflayer-bds-tests";
-import { InventoryAnalyzer } from "minecraft-logs-analyzers";
+import { createBot, type BedrockBot, type Bot } from 'mineflayer';
+import { sleep } from 'mineflayer/lib/promise_utils.js';
+import mineflayerPathfinder from 'mineflayer-pathfinder';
+import type { Block } from 'prismarine-block';
+import { Vec3 } from 'vec3';
+import { startBDSServer, ensureBDSInstalled, giveItem, setBlock, teleportPlayer, type BDSServer, getClientInventory, getServerInventory, assertInventoryMatch } from 'minecraft-bedrock-tests';
+import { InventoryAnalyzer } from 'minecraft-logs-analyzers';
 
 /** Format timestamp as yyyy-mm-dd-{seconds since midnight} */
 function formatTimestamp(date: Date = new Date()): string {
   const yyyy = date.getFullYear();
-  const mm = String(date.getMonth() + 1).padStart(2, "0");
-  const dd = String(date.getDate()).padStart(2, "0");
-  const secondsSinceMidnight =
-    date.getHours() * 3600 + date.getMinutes() * 60 + date.getSeconds();
+  const mm = String(date.getMonth() + 1).padStart(2, '0');
+  const dd = String(date.getDate()).padStart(2, '0');
+  const secondsSinceMidnight = date.getHours() * 3600 + date.getMinutes() * 60 + date.getSeconds();
   return `${yyyy}-${mm}-${dd}-${secondsSinceMidnight}`;
 }
 
 // Configuration
 const SEARCH_RADIUS = 32;
 const DEPOSIT_THRESHOLD = 128; // 2 full stacks
-const VERSION = "1.21.130";
+const VERSION = '1.21.130';
 const BDS_PATH = `c:/apps/bds-${VERSION}`;
 
 // Farm configuration
@@ -38,27 +27,20 @@ const FARM_BASE_Y = -1;
 const FARM_BASE_Z = 20;
 
 // Crop blocks and their seed mappings
-const CROP_BLOCKS = ["wheat", "carrots", "potatoes", "beetroot"] as const;
+const CROP_BLOCKS = ['wheat', 'carrots', 'potatoes', 'beetroot'] as const;
 const CROP_TO_SEED: Record<string, string> = {
-  wheat: "wheat_seeds",
-  carrots: "carrot",
-  potatoes: "potato",
-  beetroot: "beetroot_seeds",
+  wheat: 'wheat_seeds',
+  carrots: 'carrot',
+  potatoes: 'potato',
+  beetroot: 'beetroot_seeds',
 };
 
 // Items to track for deposit
-const HARVEST_ITEMS = [
-  "wheat",
-  "wheat_seeds",
-  "carrot",
-  "potato",
-  "beetroot",
-  "beetroot_seeds",
-];
+const HARVEST_ITEMS = ['wheat', 'wheat_seeds', 'carrot', 'potato', 'beetroot', 'beetroot_seeds'];
 
 // Parse command line arguments
 const args = process.argv.slice(2);
-const host = args[0] || "127.0.0.1";
+const host = args[0] || '127.0.0.1';
 const port = parseInt(args[1]) || 19191; // Non-standard port to avoid conflicts
 
 // Global state
@@ -67,14 +49,14 @@ let bot: Bot | null = null;
 let isFarming = false;
 
 async function setupFarm(server: BDSServer, playerName: string): Promise<void> {
-  console.log("Setting up farm...");
+  console.log('Setting up farm...');
 
   const baseX = FARM_BASE_X;
   const baseY = FARM_BASE_Y;
   const baseZ = FARM_BASE_Z;
 
   // Teleport bot to farm FIRST so it receives block updates
-  console.log("Teleporting bot to farm location...");
+  console.log('Teleporting bot to farm location...');
   await teleportPlayer(server, playerName, baseX - 2, baseY + 2, baseZ - 2);
   await sleep(1000); // Wait for teleport and chunk load
 
@@ -87,18 +69,18 @@ async function setupFarm(server: BDSServer, playerName: string): Promise<void> {
     [4, 4],
   ];
 
-  console.log("Adding water sources...");
+  console.log('Adding water sources...');
   for (const [dx, dz] of waterPositions) {
-    await setBlock(server, baseX + dx, baseY, baseZ + dz, "water");
+    await setBlock(server, baseX + dx, baseY, baseZ + dz, 'water');
   }
 
   // First, set farmland for all positions in 9x9 grid (excluding water)
-  console.log("Creating farmland...");
+  console.log('Creating farmland...');
   for (let dx = -4; dx <= 4; dx++) {
     for (let dz = -4; dz <= 4; dz++) {
       const isWater = waterPositions.some(([wx, wz]) => wx === dx && wz === dz);
       if (!isWater) {
-        await setBlock(server, baseX + dx, baseY, baseZ + dz, "farmland");
+        await setBlock(server, baseX + dx, baseY, baseZ + dz, 'farmland');
       }
     }
   }
@@ -107,7 +89,7 @@ async function setupFarm(server: BDSServer, playerName: string): Promise<void> {
 
   // Plant crops on farmland at Y=0 (one above farmland)
   // Quadrants: NW=carrots, NE=potatoes, SW=wheat, SE=beetroot
-  console.log("Planting crops...");
+  console.log('Planting crops...');
   for (let dx = -4; dx <= 4; dx++) {
     for (let dz = -4; dz <= 4; dz++) {
       const isWater = waterPositions.some(([wx, wz]) => wx === dx && wz === dz);
@@ -115,42 +97,37 @@ async function setupFarm(server: BDSServer, playerName: string): Promise<void> {
 
       let cropType: string;
       if (dx < 0 && dz < 0) {
-        cropType = "carrots";
+        cropType = 'carrots';
       } else if (dx > 0 && dz < 0) {
-        cropType = "potatoes";
+        cropType = 'potatoes';
       } else if (dx < 0 && dz > 0) {
-        cropType = "wheat";
+        cropType = 'wheat';
       } else {
-        cropType = "beetroot";
+        cropType = 'beetroot';
       }
 
       // Use setblock command with growth state 7 (fully grown)
-      await server.sendCommand(
-        `setblock ${baseX + dx} ${baseY + 1} ${
-          baseZ + dz
-        } ${cropType} ["growth"=7]`
-      );
+      await server.sendCommand(`setblock ${baseX + dx} ${baseY + 1} ${baseZ + dz} ${cropType} ["growth"=7]`);
     }
   }
 
   // Place chest for deposits
-  console.log("Placing chest...");
-  await setBlock(server, baseX, baseY + 1, baseZ - 5, "chest");
+  console.log('Placing chest...');
+  await setBlock(server, baseX, baseY + 1, baseZ - 5, 'chest');
 
   // Give bot seeds and tools
-  console.log("Giving items to bot...");
-  await giveItem(server, playerName, "carrot", 64);
-  await giveItem(server, playerName, "potato", 64);
-  await giveItem(server, playerName, "wheat_seeds", 64);
-  await giveItem(server, playerName, "beetroot_seeds", 64);
+  console.log('Giving items to bot...');
+  await giveItem(server, playerName, 'carrot', 64);
+  await giveItem(server, playerName, 'potato', 64);
+  await giveItem(server, playerName, 'wheat_seeds', 64);
+  await giveItem(server, playerName, 'beetroot_seeds', 64);
   //await giveItem(server, playerName, "diamond_hoe", 1);
 
-  console.log("Farm setup complete!");
+  console.log('Farm setup complete!');
 }
 
 function isFullyGrown(block: Block): boolean {
-  if (!CROP_BLOCKS.includes(block.name as (typeof CROP_BLOCKS)[number]))
-    return false;
+  if (!CROP_BLOCKS.includes(block.name as (typeof CROP_BLOCKS)[number])) return false;
   return block?._properties?.growth === 7;
 }
 
@@ -226,12 +203,7 @@ function getItemsToDeposit(): { type: number; name: string; count: number }[] {
 async function navigateTo(position: Vec3, range: number = 2): Promise<boolean> {
   if (!bot) return false;
   try {
-    const goal = new mineflayerPathfinder.goals.GoalNear(
-      position.x,
-      position.y,
-      position.z,
-      range
-    );
+    const goal = new mineflayerPathfinder.goals.GoalNear(position.x, position.y, position.z, range);
     bot.pathfinder.setGoal(goal);
 
     // Wait for goal to be reached or timeout
@@ -241,7 +213,7 @@ async function navigateTo(position: Vec3, range: number = 2): Promise<boolean> {
     while (bot.pathfinder.isMoving()) {
       if (Date.now() - startTime > timeout) {
         bot.pathfinder.setGoal(null);
-        console.log("Navigation timeout");
+        console.log('Navigation timeout');
         return false;
       }
       await sleep(100);
@@ -249,7 +221,7 @@ async function navigateTo(position: Vec3, range: number = 2): Promise<boolean> {
 
     return true;
   } catch (err) {
-    console.log("Navigation error:", err);
+    console.log('Navigation error:', err);
     return false;
   }
 }
@@ -273,14 +245,14 @@ async function harvest(cropPosition: Vec3): Promise<string | null> {
     }
 
     // Dig the crop
-    bot.packetLogger?.message?.("dig:start", {
+    bot.packetLogger?.message?.('dig:start', {
       block: cropName,
-      pos: [cropPosition.x, cropPosition.y, cropPosition.z]
+      pos: [cropPosition.x, cropPosition.y, cropPosition.z],
     });
     await bot.dig(block);
-    bot.packetLogger?.message?.("dig:done", {
+    bot.packetLogger?.message?.('dig:done', {
       block: cropName,
-      pos: [cropPosition.x, cropPosition.y, cropPosition.z]
+      pos: [cropPosition.x, cropPosition.y, cropPosition.z],
     });
     //await sleep(300);
 
@@ -288,50 +260,44 @@ async function harvest(cropPosition: Vec3): Promise<string | null> {
     let attempts = 0;
     while (attempts < 10) {
       const updatedBlock = bot.blockAt(cropPosition);
-      if (!updatedBlock || updatedBlock.name === "air") break;
+      if (!updatedBlock || updatedBlock.name === 'air') break;
       await sleep(10);
       attempts++;
     }
 
     const finalBlock = bot.blockAt(cropPosition);
-    const success = !finalBlock || finalBlock.name === "air";
-    bot.packetLogger?.message?.(success ? "dig:success" : "dig:failed", {
+    const success = !finalBlock || finalBlock.name === 'air';
+    bot.packetLogger?.message?.(success ? 'dig:success' : 'dig:failed', {
       block: cropName,
       pos: [cropPosition.x, cropPosition.y, cropPosition.z],
       finalBlock: finalBlock?.name,
-      attempts
+      attempts,
     });
 
     return seedName;
   } catch (err) {
-    bot.packetLogger?.message?.("dig:error", {
+    bot.packetLogger?.message?.('dig:error', {
       pos: [cropPosition.x, cropPosition.y, cropPosition.z],
-      error: String(err)
+      error: String(err),
     });
-    console.log("Harvest error:", err);
+    console.log('Harvest error:', err);
   }
 }
 
-async function plantSeed(
-  farmlandPos: Vec3,
-  seedName: string,
-  throwOnFail: boolean = true
-): Promise<boolean> {
+async function plantSeed(farmlandPos: Vec3, seedName: string, throwOnFail: boolean = true): Promise<boolean> {
   await sleep(10);
   if (!bot) {
-    const msg = "Bot not available";
+    const msg = 'Bot not available';
     if (throwOnFail) throw new Error(msg);
     return false;
   }
 
-  await bot.setQuickBarSlot(((bot.heldItem?.slot ?? 0) + 1) % 5)
+  await bot.setQuickBarSlot(((bot.heldItem?.slot ?? 0) + 1) % 5);
   await sleep(10);
 
   try {
     // Find seed in inventory
-    const seedInInventory = bot.inventory.slots.find(
-      (s) => s?.name === seedName
-    );
+    const seedInInventory = bot.inventory.slots.find((s) => s?.name === seedName);
     if (!seedInInventory) {
       const msg = `No ${seedName} in inventory`;
       console.log(msg);
@@ -349,35 +315,29 @@ async function plantSeed(
 
     if (bot.heldItem?.name !== seedInInventory.name) {
       // Equip the seed
-      await bot.equip(seedInInventory, "hand");
+      await bot.equip(seedInInventory, 'hand');
       await sleep(10);
     }
 
     // Get farmland block
     const farmland = bot.blockAt(farmlandPos);
 
-    console.log(
-      `Farmland check: ${farmland?.name} at ${farmlandPos.toString()}`
-    );
-    console.log(
-      `Held item: ${bot.heldItem?.name}, quickBarSlot: ${bot.quickBarSlot}`
-    );
+    console.log(`Farmland check: ${farmland?.name} at ${farmlandPos.toString()}`);
+    console.log(`Held item: ${bot.heldItem?.name}, quickBarSlot: ${bot.quickBarSlot}`);
 
-    if (!farmland || farmland.name !== "farmland") {
+    if (!farmland || farmland.name !== 'farmland') {
       const msg = `NOT farmland: ${farmland?.name} at ${farmlandPos.toString()}`;
       console.log(msg);
       if (throwOnFail) throw new Error(msg);
       return false;
     }
 
-    console.log(
-      `Calling placeBlock on farmland at ${farmland.position.toString()}`
-    );
-    bot.packetLogger?.message?.("placeBlock:start", {
+    console.log(`Calling placeBlock on farmland at ${farmland.position.toString()}`);
+    bot.packetLogger?.message?.('placeBlock:start', {
       seed: seedName,
       pos: [farmlandPos.x, farmlandPos.y, farmlandPos.z],
       heldItem: bot.heldItem?.name,
-      heldCount: bot.heldItem?.count
+      heldCount: bot.heldItem?.count,
     });
     await bot.placeBlock(farmland, new Vec3(0, 1, 0));
     await sleep(500);
@@ -385,32 +345,32 @@ async function plantSeed(
     const blockAbove = bot.blockAt(farmlandPos.offset(0, 1, 0));
     console.log(`Block above farmland after plant: ${blockAbove?.name}`);
 
-    if (blockAbove && blockAbove.name !== "air") {
-      bot.packetLogger?.message?.("placeBlock:success", {
+    if (blockAbove && blockAbove.name !== 'air') {
+      bot.packetLogger?.message?.('placeBlock:success', {
         seed: seedName,
         pos: [farmlandPos.x, farmlandPos.y, farmlandPos.z],
-        planted: blockAbove.name
+        planted: blockAbove.name,
       });
       console.log(`Planted ${seedName}!`);
       return true;
     }
 
-    bot.packetLogger?.message?.("placeBlock:failed", {
+    bot.packetLogger?.message?.('placeBlock:failed', {
       seed: seedName,
       pos: [farmlandPos.x, farmlandPos.y, farmlandPos.z],
-      blockAbove: blockAbove?.name
+      blockAbove: blockAbove?.name,
     });
     const msg = `Failed to plant ${seedName} at ${farmlandPos.toString()} - block above is ${blockAbove?.name}`;
     console.log(msg);
     if (throwOnFail) throw new Error(msg);
     return false;
   } catch (err) {
-    bot.packetLogger?.message?.("placeBlock:error", {
+    bot.packetLogger?.message?.('placeBlock:error', {
       seed: seedName,
       pos: [farmlandPos.x, farmlandPos.y, farmlandPos.z],
-      error: String(err)
+      error: String(err),
     });
-    console.log("Planting error:", err);
+    console.log('Planting error:', err);
     if (throwOnFail) throw err;
     return false;
   }
@@ -425,17 +385,13 @@ async function harvestAndReplant(cropPosition: Vec3): Promise<boolean> {
   return true;
 }
 
-async function depositToChest(
-  itemType: number,
-  itemName: string,
-  count: number
-): Promise<boolean> {
+async function depositToChest(itemType: number, itemName: string, count: number): Promise<boolean> {
   if (!bot) return false;
   try {
     // Find nearest chest
-    const chestBlockType = bot.registry.blocksByName["chest"];
+    const chestBlockType = bot.registry.blocksByName['chest'];
     if (!chestBlockType) {
-      console.log("Chest block type not found");
+      console.log('Chest block type not found');
       return false;
     }
 
@@ -445,7 +401,7 @@ async function depositToChest(
     });
 
     if (!chestBlock) {
-      console.log("No chest found nearby");
+      console.log('No chest found nearby');
       return false;
     }
 
@@ -464,7 +420,7 @@ async function depositToChest(
       await chest.deposit(itemType, null, count);
       console.log(`Deposited ${count} ${itemName}`);
     } catch (err) {
-      console.log("Deposit error:", err);
+      console.log('Deposit error:', err);
     }
 
     // Close chest
@@ -472,11 +428,10 @@ async function depositToChest(
 
     return true;
   } catch (err) {
-    console.log("Chest operation error:", err);
+    console.log('Chest operation error:', err);
     return false;
   }
 }
-
 
 async function assertInventorySync(context: string, server: BDSServer, bot: any) {
   const serverInventory = await getServerInventory(server, bot.username);
@@ -484,15 +439,13 @@ async function assertInventorySync(context: string, server: BDSServer, bot: any)
   assertInventoryMatch(clientInventory, serverInventory, context);
 }
 
-
 async function farmingLoop(server: BDSServer, bot: BedrockBot): Promise<void> {
   if (isFarming) return;
   isFarming = true;
 
-  console.log("Starting farming loop...");
+  console.log('Starting farming loop...');
 
   while (isFarming && bot) {
-
     try {
       // Check if we need to deposit items
       const itemsToDeposit = getItemsToDeposit();
@@ -513,7 +466,7 @@ async function farmingLoop(server: BDSServer, bot: BedrockBot): Promise<void> {
         await harvestAndReplant(closestCrop);
       } else {
         // Find farmland with air above (ready for planting)
-        const blockType = bot.registry.blocksByName["farmland"];
+        const blockType = bot.registry.blocksByName['farmland'];
         const found = bot.findBlocks({
           matching: blockType.id,
           maxDistance: SEARCH_RADIUS,
@@ -523,16 +476,15 @@ async function farmingLoop(server: BDSServer, bot: BedrockBot): Promise<void> {
         // Find first farmland with air above
         const emptyFarmland = found.find((pos) => {
           const blockAbove = bot.blockAt(pos.offset(0, 1, 0));
-          return blockAbove && blockAbove.name === "air";
+          return blockAbove && blockAbove.name === 'air';
         });
 
         if (emptyFarmland) {
           console.log(`Found empty farmland at ${emptyFarmland.toString()}`);
-          const randomCrop =
-            CROP_BLOCKS[Math.floor(Math.random() * CROP_BLOCKS.length)];
+          const randomCrop = CROP_BLOCKS[Math.floor(Math.random() * CROP_BLOCKS.length)];
           await plantSeed(emptyFarmland, CROP_TO_SEED[randomCrop], true);
         } else {
-          console.log("No empty farmland found");
+          console.log('No empty farmland found');
         }
       }
 
@@ -554,7 +506,7 @@ async function farmingLoop(server: BDSServer, bot: BedrockBot): Promise<void> {
         await sleep(1000);
       }
     } catch (err) {
-      console.log("Farming loop error:", err);
+      console.log('Farming loop error:', err);
       process.exit();
       await sleep(1000);
     }
@@ -567,29 +519,29 @@ async function main(): Promise<void> {
   console.log(`Farmer Bot starting...`);
 
   // Download BDS if missing
-  console.log("Ensuring BDS is installed...");
+  console.log('Ensuring BDS is installed...');
   await ensureBDSInstalled(VERSION, BDS_PATH);
 
   // Start BDS server
   console.log(`Starting BDS server on port ${port}...`);
   server = await startBDSServer({ port });
-  console.log("BDS server started!");
+  console.log('BDS server started!');
 
   // Create bot with packet logger
   console.log(`Connecting bot to ${host}:${port}...`);
   bot = createBot({
     host,
     port,
-    auth: "offline",
+    auth: 'offline',
     version: `bedrock_${VERSION}`,
     offline: true,
     //packetLogger: new InventoryAnalyzer(`logs/farmer-bot-${formatTimestamp()}`),
   });
 
   // Bot event handlers
-  bot.once("inject_allowed", () => {
+  bot.once('inject_allowed', () => {
     if (!bot) return;
-    console.log("Loading pathfinder...");
+    console.log('Loading pathfinder...');
     bot.loadPlugin(mineflayerPathfinder.pathfinder);
 
     bot.defaultMovements = new mineflayerPathfinder.Movements(bot);
@@ -602,22 +554,22 @@ async function main(): Promise<void> {
     bot.pathfinder.setMovements(bot.defaultMovements);
   });
 
-  bot.on("error", (err) => console.error("Bot error:", err));
+  bot.on('error', (err) => console.error('Bot error:', err));
 
-  bot.on("end", () => {
-    console.log("Bot disconnected.");
+  bot.on('end', () => {
+    console.log('Bot disconnected.');
     isFarming = false;
     bot?.close();
   });
 
-  bot.once("spawn", async () => {
+  bot.once('spawn', async () => {
     if (!bot || !server) return;
-    console.log("Bot spawned!");
+    console.log('Bot spawned!');
     console.log(`Position: ${bot.entity.position.toString()}`);
 
     // Wait for chunks to load
     await bot.waitForChunksToLoad();
-    console.log("Chunks loaded.");
+    console.log('Chunks loaded.');
 
     // Setup the farm
     await setupFarm(server, bot.username);
@@ -644,20 +596,20 @@ async function main(): Promise<void> {
   });
 
   // Chat command handler
-  bot._client.on("text", (packet: { message: string }) => {
+  bot._client.on('text', (packet: { message: string }) => {
     if (!bot) return;
     const message = packet.message.toLowerCase();
 
-    if (message.includes("stop")) {
-      console.log("Stop command received");
+    if (message.includes('stop')) {
+      console.log('Stop command received');
       isFarming = false;
       bot.pathfinder.setGoal(null);
-    } else if (message.includes("start")) {
-      console.log("Start command received");
+    } else if (message.includes('start')) {
+      console.log('Start command received');
       if (!isFarming) {
         farmingLoop();
       }
-    } else if (message.includes("status")) {
+    } else if (message.includes('status')) {
       console.log(`Farming: ${isFarming}`);
       console.log(`Position: ${bot.entity.position.toString()}`);
 
@@ -669,19 +621,15 @@ async function main(): Promise<void> {
 
       const items = getItemsToDeposit();
       if (items.length > 0) {
-        console.log(
-          `Items ready to deposit: ${items
-            .map((i) => `${i.name}(${i.count})`)
-            .join(", ")}`
-        );
+        console.log(`Items ready to deposit: ${items.map((i) => `${i.name}(${i.count})`).join(', ')}`);
       }
     }
   });
 }
 
 // Handle graceful shutdown
-process.on("SIGINT", async () => {
-  console.log("Shutting down...");
+process.on('SIGINT', async () => {
+  console.log('Shutting down...');
   isFarming = false;
 
   try {
@@ -692,7 +640,7 @@ process.on("SIGINT", async () => {
 
   try {
     if (server) {
-      console.log("Stopping BDS server...");
+      console.log('Stopping BDS server...');
       await server.stop();
     }
   } catch {
@@ -704,6 +652,6 @@ process.on("SIGINT", async () => {
 
 // Run main
 main().catch((err) => {
-  console.error("Fatal error:", err);
+  console.error('Fatal error:', err);
   process.exit(1);
 });

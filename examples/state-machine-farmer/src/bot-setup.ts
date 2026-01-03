@@ -1,13 +1,11 @@
-import mineflayer, { createBot, type BedrockBot, type Bot } from "mineflayer";
-import mineflayerPathfinder from "mineflayer-pathfinder";
-import { BotStateMachine, StateMachineWebserver, WebserverBehaviorPositions } from "@nxg-org/mineflayer-static-statemachine";
-import { buildFarmingMachine } from "./machines/farming.ts";
-import { createFarmingContext } from "./context.ts";
-import {
-  IdleState, DepositState, HarvestState, PlantState, CutTreeState, PlantTreeState,
-} from "./states/index.ts";
+import mineflayer, { createBot, type BedrockBot, type Bot } from 'mineflayer';
+import mineflayerPathfinder from 'mineflayer-pathfinder';
+import { BotStateMachine, StateMachineWebserver, WebserverBehaviorPositions } from '@nxg-org/mineflayer-static-statemachine';
+import { buildFarmingMachine } from './machines/farming.ts';
+import { createFarmingContext } from './context.ts';
+import { IdleState, DepositState, HarvestState, PlantState, CutTreeState, PlantTreeState } from './states/index.ts';
 
-const DEFAULT_HOST = "127.0.0.1";
+const DEFAULT_HOST = '127.0.0.1';
 const DEFAULT_PORT = 19191;
 
 export interface FarmingBotOptions {
@@ -22,14 +20,14 @@ export function createFarmingBot(options: FarmingBotOptions): BedrockBot {
   const bot = createBot({
     host: options.host || DEFAULT_HOST,
     port: options.port || DEFAULT_PORT,
-    auth: "offline",
+    auth: 'offline',
     version: `bedrock_${options.version}`,
     // @ts-ignore
     offline: true,
-    username: "bedrock-bot-1-21-130",
+    username: 'bedrock-bot-1-21-130',
   }) as unknown as BedrockBot;
 
-  bot.once("inject_allowed", () => {
+  bot.once('inject_allowed', () => {
     bot.loadPlugin(mineflayerPathfinder.pathfinder);
     // @ts-ignore
     bot.defaultMovements = new mineflayerPathfinder.Movements(bot);
@@ -59,8 +57,8 @@ export function startStateMachine(bot: BedrockBot): void {
   });
 
   // @ts-ignore - state machine event types
-  machine.on("stateEntered", (_type: unknown, _cls: unknown, newState: { name?: string }) => {
-    console.log(`State: ${newState?.name || "unknown"}`);
+  machine.on('stateEntered', (_type: unknown, _cls: unknown, newState: { name?: string }) => {
+    console.log(`State: ${newState?.name || 'unknown'}`);
   });
 
   machine.start();
@@ -78,5 +76,5 @@ export function startStateMachine(bot: BedrockBot): void {
     presetPositions: positions,
   });
   webserver.startServer();
-  console.log("Webserver: http://localhost:8934");
+  console.log('Webserver: http://localhost:8934');
 }

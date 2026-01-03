@@ -1,6 +1,6 @@
-'use strict'
+'use strict';
 
-import {EventEmitter} from 'events';
+import { EventEmitter } from 'events';
 import { PacketDumpReader } from '../utils/packet-dump-reader.js';
 
 export class BedrockReplayClient extends EventEmitter {
@@ -9,7 +9,7 @@ export class BedrockReplayClient extends EventEmitter {
 
   constructor(filename: string, skipDelay = false) {
     super();
-    this.#reader = new PacketDumpReader(filename)
+    this.#reader = new PacketDumpReader(filename);
     setTimeout(() => this.simulate(skipDelay), 500);
   }
 
@@ -41,7 +41,7 @@ export class BedrockReplayClient extends EventEmitter {
     }
   }
 
-  queue() { }
+  queue() {}
 
   write(name: string, params: any) {
     // console.log(`Writing packet: ${name}`, serialize(params, 2));

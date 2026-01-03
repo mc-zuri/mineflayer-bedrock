@@ -1,12 +1,12 @@
-import { StateBehavior } from "@nxg-org/mineflayer-static-statemachine";
-import mineflayerPathfinder from "mineflayer-pathfinder";
+import { StateBehavior } from '@nxg-org/mineflayer-static-statemachine';
+import mineflayerPathfinder from 'mineflayer-pathfinder';
 const { goals } = mineflayerPathfinder;
-import type { FarmingContext } from "../context.ts";
-import { SEARCH_RADIUS, DEPOSIT_THRESHOLD, HARVEST_ITEMS } from "../constants.ts";
-import { needsDeposit, sleep } from "../utils/index.ts";
+import type { FarmingContext } from '../context.ts';
+import { SEARCH_RADIUS, DEPOSIT_THRESHOLD, HARVEST_ITEMS } from '../constants.ts';
+import { needsDeposit, sleep } from '../utils/index.ts';
 
 export class DepositState extends StateBehavior {
-  name = "deposit";
+  name = 'deposit';
   private done = false;
 
   get ctx(): FarmingContext | undefined {
@@ -30,18 +30,18 @@ export class DepositState extends StateBehavior {
 
     const itemsToDeposit = this.getItemsToDeposit();
     if (itemsToDeposit.length === 0) {
-      console.log("No items to deposit");
+      console.log('No items to deposit');
       this.done = true;
       return;
     }
 
     console.log(`Depositing ${itemsToDeposit.length} item type(s)`);
-    this.bot.chat(`Depositing ${itemsToDeposit.map(i => i.name).join(", ")}`);
+    this.bot.chat(`Depositing ${itemsToDeposit.map((i) => i.name).join(', ')}`);
 
     try {
       await this.depositToChest(itemsToDeposit);
     } catch (err) {
-      console.log("Chest error:", err);
+      console.log('Chest error:', err);
     } finally {
       this.done = true;
     }
@@ -68,7 +68,7 @@ export class DepositState extends StateBehavior {
   }
 
   private async depositToChest(items: { type: number; name: string; count: number }[]): Promise<void> {
-    const chestBlockType = this.bot.registry.blocksByName["chest"];
+    const chestBlockType = this.bot.registry.blocksByName['chest'];
     if (!chestBlockType) return;
 
     const chestBlock = this.bot.findBlock({
@@ -77,7 +77,7 @@ export class DepositState extends StateBehavior {
     });
 
     if (!chestBlock) {
-      console.log("No chest found");
+      console.log('No chest found');
       return;
     }
 
@@ -87,7 +87,9 @@ export class DepositState extends StateBehavior {
     this.bot.setQuickBarSlot(8);
     await sleep(100);
 
-    const window = await this.bot.openBlock(chestBlock) as unknown as { deposit: (type: number, metadata: null, count: number) => Promise<void> };
+    const window = (await this.bot.openBlock(chestBlock)) as unknown as {
+      deposit: (type: number, metadata: null, count: number) => Promise<void>;
+    };
 
     for (const item of items) {
       try {
@@ -99,6 +101,6 @@ export class DepositState extends StateBehavior {
     }
 
     await this.bot.closeWindow(window as unknown as Parameters<typeof this.bot.closeWindow>[0]);
-    this.bot.chat("Deposit complete!");
+    this.bot.chat('Deposit complete!');
   }
 }

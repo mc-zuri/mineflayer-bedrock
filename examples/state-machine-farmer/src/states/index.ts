@@ -1,9 +1,9 @@
-import { StateBehavior } from "@nxg-org/mineflayer-static-statemachine";
-import type { FarmingContext } from "../context.ts";
-import { needsDeposit, hasTree, findMatureCrop, findEmptyFarmland } from "../utils/index.ts";
+import { StateBehavior } from '@nxg-org/mineflayer-static-statemachine';
+import type { FarmingContext } from '../context.ts';
+import { needsDeposit, hasTree, findMatureCrop, findEmptyFarmland } from '../utils/index.ts';
 
 export class IdleState extends StateBehavior {
-  name = "idle";
+  name = 'idle';
   private done = false;
   private waitTimeout: ReturnType<typeof setTimeout> | null = null;
 
@@ -41,7 +41,9 @@ export class IdleState extends StateBehavior {
     if (this.needsDeposit() || this.hasTree() || this.hasMatureCrops() || this.hasEmptyFarmland()) {
       this.done = true;
     } else {
-      this.waitTimeout = setTimeout(() => { this.done = true; }, 500);
+      this.waitTimeout = setTimeout(() => {
+        this.done = true;
+      }, 500);
     }
   }
 
@@ -53,8 +55,8 @@ export class IdleState extends StateBehavior {
   }
 }
 
-export * from "./harvest.ts";
-export * from "./plant.ts";
-export * from "./deposit.ts";
-export * from "./cut-tree.ts";
-export * from "./plant-tree.ts";
+export * from './harvest.ts';
+export * from './plant.ts';
+export * from './deposit.ts';
+export * from './cut-tree.ts';
+export * from './plant-tree.ts';

@@ -1,12 +1,23 @@
 {
     "workspaces": [
-        "packages/*"
+        "packages/*",
+        "examples/*"
     ],
     "private": true,
     "scripts": {
-        "start": "node --experimental-strip-types  --disable-warning=ExperimentalWarning packages/mineflayer-bedrock/src/main.ts"
+        "start": "node --experimental-strip-types  --disable-warning=ExperimentalWarning packages/mineflayer-bedrock/src/main.ts",
+        "test:bedrock": "npm run mocha_test --workspace=mineflayer -- test/bedrockTest.mts",
+        "test:bedrock-inventory": "npm run mocha_test --workspace=mineflayer -- test/inventoryTest.mts",
+        "test:bds": "npm test --workspace=minecraft-bedrock-tests",
+        "collect:packets": "npm run collect --workspace=minecraft-bedrock-tests",
+        "format": "prettier --write \"**/*.{ts,mts}\"",
+        "format:check": "prettier --check \"**/*.{ts,mts}\""
     },
     "dependencies": {
-        "bedrock-protocol": "^3.52.0"
+        "bedrock-protocol": "^3.52.0",
+        "patch-package": "^8.0.1"
+    },
+    "devDependencies": {
+        "prettier": "^3.7.4"
     }
 }

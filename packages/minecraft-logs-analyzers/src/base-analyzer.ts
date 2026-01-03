@@ -1,5 +1,5 @@
-import * as fs from "fs";
-import type { Direction, LogEntry, IPacketLogger, AnalyzerConfig } from "./types.ts";
+import * as fs from 'fs';
+import type { Direction, LogEntry, IPacketLogger, AnalyzerConfig } from './types.ts';
 
 /**
  * Abstract base class for packet analyzers.
@@ -21,7 +21,7 @@ export abstract class BaseAnalyzer implements IPacketLogger {
    */
   constructor(basePath: string) {
     // Ensure output directory exists
-    const dir = basePath.substring(0, basePath.lastIndexOf("/"));
+    const dir = basePath.substring(0, basePath.lastIndexOf('/'));
     if (dir && !fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });
     }
@@ -33,7 +33,7 @@ export abstract class BaseAnalyzer implements IPacketLogger {
   protected init(): void {
     const postfix = this.config.postfix ?? this.config.name;
     const filename = `${this._basePath}-${postfix}.jsonl`;
-    this.stream = fs.createWriteStream(filename, { flags: "a" });
+    this.stream = fs.createWriteStream(filename, { flags: 'a' });
   }
 
   setRegistry(registry: unknown): void {
@@ -42,7 +42,7 @@ export abstract class BaseAnalyzer implements IPacketLogger {
 
   log(direction: Direction, name: string, packet: unknown): void {
     // Enable logging after play_status packet
-    if (name === "play_status") {
+    if (name === 'play_status') {
       this.enabled = true;
       this.startTime = Date.now();
     }
@@ -62,19 +62,11 @@ export abstract class BaseAnalyzer implements IPacketLogger {
   }
 
   /** Extract relevant fields from packet - must be implemented by subclass */
-  protected abstract extractFields(
-    direction: Direction,
-    name: string,
-    packet: unknown
-  ): LogEntry | null;
+  protected abstract extractFields(direction: Direction, name: string, packet: unknown): LogEntry | null;
 
   /** Write a log entry to the stream */
   protected writeEntry(entry: LogEntry): void {
-    this.stream.write(
-      JSON.stringify(entry, (key, value) =>
-        typeof value === "bigint" ? value.toString() : value
-      ) + "\n"
-    );
+    this.stream.write(JSON.stringify(entry, (key, value) => (typeof value === 'bigint' ? value.toString() : value)) + '\n');
   }
 
   /** Create base log entry with common fields */
@@ -96,17 +88,17 @@ export abstract class BaseAnalyzer implements IPacketLogger {
 
   /** Resolve item name from item data */
   protected itemName(item: unknown): string | undefined {
-    if (!item || typeof item !== "object") return undefined;
+    if (!item || typeof item !== 'object') return undefined;
     const i = item as Record<string, unknown>;
     if (i.network_id === 0) return undefined;
 
     // Try direct name first
-    if (typeof i.name === "string") return i.name;
-    if (typeof i.blockName === "string") return i.blockName;
+    if (typeof i.name === 'string') return i.name;
+    if (typeof i.blockName === 'string') return i.blockName;
 
     // Try to resolve from registry by network_id
     const reg = this.registry as Record<string, unknown> | null;
-    if (reg && typeof i.network_id === "number") {
+    if (reg && typeof i.network_id === 'number') {
       const items = reg.items as Record<number, { name?: string }> | undefined;
       const itemData = items?.[i.network_id];
       if (itemData?.name) return itemData.name;
@@ -122,8 +114,8 @@ export abstract class BaseAnalyzer implements IPacketLogger {
     const entry: LogEntry = {
       t: Date.now() - this.startTime,
       tick: this.lastTick || undefined,
-      d: "C",
-      p: "##",
+      d: 'C',
+      p: '##',
       msg,
       ...data,
     };
@@ -140,23 +132,20 @@ export abstract class BaseAnalyzer implements IPacketLogger {
    * Attach to a bot's client to log both incoming and outgoing packets.
    * Requires the bedrock-protocol patch that adds 'writePacket' event.
    */
-  attachToBot(client: {
-    on(event: "packet", cb: (packet: unknown) => void): void;
-    on(event: "writePacket", cb: (name: string, params: unknown) => void): void;
-  }): void {
+  attachToBot(client: { on(event: 'packet', cb: (packet: unknown) => void): void; on(event: 'writePacket', cb: (name: string, params: unknown) => void): void }): void {
     // Log incoming packets (server -> client)
-    client.on("packet", (packet: unknown) => {
+    client.on('packet', (packet: unknown) => {
       const p = packet as Record<string, unknown> | null;
       const name = (p?.name || (p?.data as Record<string, unknown>)?.name) as string | undefined;
       const params = p?.params || (p?.data as Record<string, unknown>)?.params || packet;
       if (name) {
-        this.log("S", name, params);
+        this.log('S', name, params);
       }
     });
 
     // Log outgoing packets (client -> server) - requires patched bedrock-protocol
-    client.on("writePacket", (name: string, params: unknown) => {
-      this.log("C", name, params);
+    client.on('writePacket', (name: string, params: unknown) => {
+      this.log('C', name, params);
     });
   }
 }

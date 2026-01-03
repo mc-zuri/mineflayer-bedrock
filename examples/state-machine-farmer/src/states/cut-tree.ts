@@ -1,13 +1,13 @@
-import { StateBehavior } from "@nxg-org/mineflayer-static-statemachine";
-import mineflayerPathfinder from "mineflayer-pathfinder";
+import { StateBehavior } from '@nxg-org/mineflayer-static-statemachine';
+import mineflayerPathfinder from 'mineflayer-pathfinder';
 const { goals } = mineflayerPathfinder;
-import { Vec3 } from "vec3";
-import type { FarmingContext } from "../context.ts";
-import { TREE_BLOCKS, LOG_TO_SAPLING, AXE_TYPES } from "../constants.ts";
-import { hasTree, findTreeBase, getNeighborPositions, posToKey, sleep } from "../utils/index.ts";
+import { Vec3 } from 'vec3';
+import type { FarmingContext } from '../context.ts';
+import { TREE_BLOCKS, LOG_TO_SAPLING, AXE_TYPES } from '../constants.ts';
+import { hasTree, findTreeBase, getNeighborPositions, posToKey, sleep } from '../utils/index.ts';
 
 export class CutTreeState extends StateBehavior {
-  name = "cutTree";
+  name = 'cutTree';
   private done = false;
 
   get ctx(): FarmingContext | undefined {
@@ -35,23 +35,22 @@ export class CutTreeState extends StateBehavior {
     try {
       const baseLog = findTreeBase(this.bot);
       if (!baseLog) {
-        console.log("No tree found");
+        console.log('No tree found');
         this.done = true;
         return;
       }
 
       console.log(`Found tree at ${baseLog.pos.toString()} (${baseLog.name})`);
-      this.bot.chat(`Cutting ${baseLog.name.replace("_log", "")} tree`);
+      this.bot.chat(`Cutting ${baseLog.name.replace('_log', '')} tree`);
 
       this.ctx.treeBasePosition = baseLog.pos.clone();
-      this.ctx.saplingType = LOG_TO_SAPLING[baseLog.name] || "oak_sapling";
+      this.ctx.saplingType = LOG_TO_SAPLING[baseLog.name] || 'oak_sapling';
 
       await this.equipAxe();
       await this.navigateTo(baseLog.pos, 2);
       await this.cutConnectedBlocks(baseLog.pos);
-
     } catch (err) {
-      console.log("CutTree error:", err);
+      console.log('CutTree error:', err);
     } finally {
       this.done = true;
     }
@@ -59,9 +58,9 @@ export class CutTreeState extends StateBehavior {
 
   private async equipAxe(): Promise<void> {
     for (const axeType of AXE_TYPES) {
-      const axe = this.bot.inventory.slots.find(s => s?.name === axeType);
+      const axe = this.bot.inventory.slots.find((s) => s?.name === axeType);
       if (axe) {
-        await this.bot.equip(axe, "hand");
+        await this.bot.equip(axe, 'hand');
         await sleep(100);
         break;
       }

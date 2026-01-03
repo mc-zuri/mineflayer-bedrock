@@ -1,11 +1,11 @@
-import mcData from "minecraft-data";
-import mcRegistry, { type Registry } from "prismarine-registry";
-import mcChunk, { type PCChunk } from "prismarine-chunk";
-import mcBlock, { type Block } from "prismarine-block";
-import mcWorld from "prismarine-world";
-import type { World } from "prismarine-world/types/world.js";
-import { Vec3 } from "vec3";
-import type { Bot } from "mineflayer";
+import mcData from 'minecraft-data';
+import mcRegistry, { type Registry } from 'prismarine-registry';
+import mcChunk, { type PCChunk } from 'prismarine-chunk';
+import mcBlock, { type Block } from 'prismarine-block';
+import mcWorld from 'prismarine-world';
+import type { World } from 'prismarine-world/types/world.js';
+import { Vec3 } from 'vec3';
+import type { Bot } from 'mineflayer';
 
 let mcChunkLoader = mcChunk as any as (mcVersionOrRegistry: string | Registry) => typeof PCChunk;
 let mcWorldLoader = mcWorld as any as (mcVersion: string) => typeof World;

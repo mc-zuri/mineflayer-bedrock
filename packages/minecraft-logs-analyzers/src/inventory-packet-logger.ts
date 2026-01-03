@@ -1,14 +1,14 @@
-import * as fs from "fs";
+import * as fs from 'fs';
 
 export interface IPacketLogger {
-  log(direction: "C" | "S", name: string, packet: any): void;
+  log(direction: 'C' | 'S', name: string, packet: any): void;
   attachToBot(client: any): void;
   setRegistry?(registry: any): void;
   message?(msg: string, data?: Record<string, any>): void;
   close(): void;
 }
 
-type Direction = "C" | "S";
+type Direction = 'C' | 'S';
 
 interface LogEntry {
   t: number;
@@ -19,15 +19,15 @@ interface LogEntry {
 }
 
 const PACKETS_TO_LOG = new Set([
-  "player_action",
-  "inventory_transaction",
-  "item_stack_request",
-  "item_stack_response",
-  "mob_equipment",
-  "inventory_slot",
-  "inventory_content",
-  "player_auth_input",
-  "animate",
+  'player_action',
+  'inventory_transaction',
+  'item_stack_request',
+  'item_stack_response',
+  'mob_equipment',
+  'inventory_slot',
+  'inventory_content',
+  'player_auth_input',
+  'animate',
 ]);
 
 export class InventoryAnalyzer implements IPacketLogger {
@@ -44,12 +44,12 @@ export class InventoryAnalyzer implements IPacketLogger {
    */
   constructor(basePath: string, postfix?: string, registry?: any) {
     // Ensure output directory exists
-    const dir = basePath.substring(0, basePath.lastIndexOf("/"));
+    const dir = basePath.substring(0, basePath.lastIndexOf('/'));
     if (dir && !fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });
     }
     const filename = postfix ? `${basePath}-${postfix}.jsonl` : `${basePath}.jsonl`;
-    this.stream = fs.createWriteStream(filename, { flags: "a" });
+    this.stream = fs.createWriteStream(filename, { flags: 'a' });
     this.startTime = Date.now();
     this.registry = registry;
   }
@@ -60,7 +60,7 @@ export class InventoryAnalyzer implements IPacketLogger {
 
   log(direction: Direction, name: string, packet: any): void {
     // Enable logging after play_status packet
-    if (name === "play_status") {
+    if (name === 'play_status') {
       this.enabled = true;
       this.startTime = Date.now(); // Reset start time
     }
@@ -70,9 +70,7 @@ export class InventoryAnalyzer implements IPacketLogger {
 
     const entry = this.extractFields(direction, name, packet);
     if (entry) {
-      this.stream.write(JSON.stringify(entry, (key, value) =>
-        typeof value === 'bigint' ? value.toString() : value
-      ) + "\n");
+      this.stream.write(JSON.stringify(entry, (key, value) => (typeof value === 'bigint' ? value.toString() : value)) + '\n');
     }
   }
 
@@ -80,28 +78,20 @@ export class InventoryAnalyzer implements IPacketLogger {
     if (!PACKETS_TO_LOG.has(name)) return false;
 
     // For player_auth_input, only log if there's block_action or item_stack_request
-    if (name === "player_auth_input") {
-      const hasBlockAction =
-        packet.block_action &&
-        Array.isArray(packet.block_action) &&
-        packet.block_action.length > 0;
-      const hasItemStackRequest =
-        packet.item_stack_request && packet.input_data?.item_stack_request;
+    if (name === 'player_auth_input') {
+      const hasBlockAction = packet.block_action && Array.isArray(packet.block_action) && packet.block_action.length > 0;
+      const hasItemStackRequest = packet.item_stack_request && packet.input_data?.item_stack_request;
       return hasBlockAction || hasItemStackRequest;
     }
 
     return true;
   }
 
-  private extractFields(
-    direction: Direction,
-    name: string,
-    packet: any
-  ): LogEntry | null {
+  private extractFields(direction: Direction, name: string, packet: any): LogEntry | null {
     const t = Date.now() - this.startTime;
 
     // Track tick from player_auth_input
-    if (name === "player_auth_input" && packet.tick !== undefined) {
+    if (name === 'player_auth_input' && packet.tick !== undefined) {
       this.lastTick = packet.tick;
     }
 
@@ -113,17 +103,15 @@ export class InventoryAnalyzer implements IPacketLogger {
     };
 
     switch (name) {
-      case "player_action":
+      case 'player_action':
         return {
           ...base,
           action: packet.action,
-          pos: packet.position
-            ? [packet.position.x, packet.position.y, packet.position.z]
-            : undefined,
+          pos: packet.position ? [packet.position.x, packet.position.y, packet.position.z] : undefined,
           face: packet.face,
         };
 
-      case "inventory_transaction":
+      case 'inventory_transaction':
         const txData = packet.transaction?.transaction_data;
         const txActions = packet.transaction?.actions?.map((a: any) => ({
           src: a.source_type,
@@ -141,28 +129,18 @@ export class InventoryAnalyzer implements IPacketLogger {
           slot: txData?.hotbar_slot,
           item: this.itemName(txData?.held_item),
           itemCount: txData?.held_item?.count ?? txData?.held_item?.stack_size,
-          pos: txData?.block_position
-            ? [
-                txData.block_position.x,
-                txData.block_position.y,
-                txData.block_position.z,
-              ]
-            : undefined,
+          pos: txData?.block_position ? [txData.block_position.x, txData.block_position.y, txData.block_position.z] : undefined,
           actionsLen: packet.transaction?.actions?.length,
           actions: txActions?.length ? txActions : undefined,
           heldStackId: txData?.held_item?.stack_id,
           hasStackId: txData?.held_item?.has_stack_id,
         };
 
-      case "item_stack_request":
+      case 'item_stack_request':
         const actions = packet.requests?.[0]?.actions?.map((a: any) => ({
           type: a.type_id,
-          src: a.source
-            ? `${a.source.slot_type?.container_id}:${a.source.slot}`
-            : undefined,
-          dst: a.destination
-            ? `${a.destination.slot_type?.container_id}:${a.destination.slot}`
-            : undefined,
+          src: a.source ? `${a.source.slot_type?.container_id}:${a.source.slot}` : undefined,
+          dst: a.destination ? `${a.destination.slot_type?.container_id}:${a.destination.slot}` : undefined,
           count: a.count,
         }));
         return {
@@ -171,7 +149,7 @@ export class InventoryAnalyzer implements IPacketLogger {
           actions,
         };
 
-      case "item_stack_response":
+      case 'item_stack_response':
         const responses = packet.responses?.map((r: any) => ({
           reqId: r.request_id,
           status: r.status,
@@ -181,7 +159,7 @@ export class InventoryAnalyzer implements IPacketLogger {
           responses,
         };
 
-      case "mob_equipment":
+      case 'mob_equipment':
         return {
           ...base,
           item: this.itemName(packet.item),
@@ -190,7 +168,7 @@ export class InventoryAnalyzer implements IPacketLogger {
           selected: packet.selected_slot,
         };
 
-      case "inventory_slot":
+      case 'inventory_slot':
         return {
           ...base,
           window: packet.window_id,
@@ -200,10 +178,8 @@ export class InventoryAnalyzer implements IPacketLogger {
           stackId: packet.item?.stack_id,
         };
 
-      case "inventory_content":
-        const items = packet.input?.filter(
-          (i: any) => i && i.network_id !== 0
-        );
+      case 'inventory_content':
+        const items = packet.input?.filter((i: any) => i && i.network_id !== 0);
         const nonEmpty = items?.length ?? 0;
         // Log first few non-empty items with their counts
         const slotDetails = items?.slice(0, 10).map((i: any, idx: number) => ({
@@ -219,7 +195,7 @@ export class InventoryAnalyzer implements IPacketLogger {
           slots: slotDetails,
         };
 
-      case "player_auth_input":
+      case 'player_auth_input':
         // Log tick, block_action, and item_stack_request if present
         const authEntry: LogEntry = {
           ...base,
@@ -229,9 +205,7 @@ export class InventoryAnalyzer implements IPacketLogger {
         if (packet.block_action?.length > 0) {
           authEntry.blockAction = packet.block_action.map((a: any) => ({
             action: a.action,
-            pos: a.position
-              ? [a.position.x, a.position.y, a.position.z]
-              : undefined,
+            pos: a.position ? [a.position.x, a.position.y, a.position.z] : undefined,
             face: a.face,
           }));
         }
@@ -251,7 +225,7 @@ export class InventoryAnalyzer implements IPacketLogger {
 
         return authEntry;
 
-      case "animate":
+      case 'animate':
         return {
           ...base,
           action: packet.action_id,
@@ -289,14 +263,12 @@ export class InventoryAnalyzer implements IPacketLogger {
     const entry: LogEntry = {
       t: Date.now() - this.startTime,
       tick: this.lastTick || undefined,
-      d: "C",
-      p: "##",
+      d: 'C',
+      p: '##',
       msg,
       ...data,
     };
-    this.stream.write(JSON.stringify(entry, (key, value) =>
-      typeof value === 'bigint' ? value.toString() : value
-    ) + "\n");
+    this.stream.write(JSON.stringify(entry, (key, value) => (typeof value === 'bigint' ? value.toString() : value)) + '\n');
   }
 
   close(): void {
@@ -309,17 +281,17 @@ export class InventoryAnalyzer implements IPacketLogger {
    */
   attachToBot(client: any): void {
     // Log incoming packets (server -> client)
-    client.on("packet", (packet: any) => {
+    client.on('packet', (packet: any) => {
       const name = packet?.name || packet?.data?.name;
       const params = packet?.params || packet?.data?.params || packet;
       if (name) {
-        this.log("S", name, params);
+        this.log('S', name, params);
       }
     });
 
     // Log outgoing packets (client -> server) - requires patched bedrock-protocol
-    client.on("writePacket", (name: string, params: any) => {
-      this.log("C", name, params);
+    client.on('writePacket', (name: string, params: any) => {
+      this.log('C', name, params);
     });
   }
 }

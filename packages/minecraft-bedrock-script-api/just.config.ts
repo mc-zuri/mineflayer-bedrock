@@ -1,4 +1,4 @@
-import { argv, parallel, series, task, tscTask } from "just-scripts";
+import { argv, parallel, series, task, tscTask } from 'just-scripts';
 import {
   BundleTaskParameters,
   CopyTaskParameters,
@@ -14,29 +14,29 @@ import {
   DEFAULT_CLEAN_DIRECTORIES,
   getOrThrowFromProcess,
   watchTask,
-} from "@minecraft/core-build-tasks";
-import path from "path";
+} from '@minecraft/core-build-tasks';
+import path from 'path';
 
 // Setup env variables
-setupEnvironment(path.resolve(__dirname, ".env"));
-const projectName = getOrThrowFromProcess("PROJECT_NAME");
+setupEnvironment(path.resolve(__dirname, '.env'));
+const projectName = getOrThrowFromProcess('PROJECT_NAME');
 
 // You can use `npm run build:production` to build a "production" build that strips out statements labelled with "dev:".
 const isProduction = argv()['production'];
 
 const bundleTaskOptions: BundleTaskParameters = {
-  entryPoint: path.join(__dirname, "./scripts/main.ts"),
-  external: ["@minecraft/server", "@minecraft/server-ui", "@minecraft/server-gametest"],
-  outfile: path.resolve(__dirname, "./dist/scripts/main.js"),
+  entryPoint: path.join(__dirname, './scripts/main.ts'),
+  external: ['@minecraft/server', '@minecraft/server-ui', '@minecraft/server-gametest'],
+  outfile: path.resolve(__dirname, './dist/scripts/main.js'),
   minifyWhitespace: false,
   sourcemap: true,
-  outputSourcemapPath: path.resolve(__dirname, "./dist/debug"),
-  dropLabels: isProduction ? ['dev'] : undefined
+  outputSourcemapPath: path.resolve(__dirname, './dist/debug'),
+  dropLabels: isProduction ? ['dev'] : undefined,
 };
 
 const copyTaskOptions: CopyTaskParameters = {
   copyToBehaviorPacks: [`./behavior_packs/${projectName}`],
-  copyToScripts: ["./dist/scripts"],
+  copyToScripts: ['./dist/scripts'],
   copyToResourcePacks: [],
 };
 
@@ -46,31 +46,25 @@ const mcaddonTaskOptions: ZipTaskParameters = {
 };
 
 // Lint
-task("lint", coreLint(["scripts/**/*.ts"], argv().fix));
+task('lint', coreLint(['scripts/**/*.ts'], argv().fix));
 
 // Build
-task("typescript", tscTask());
-task("bundle", bundleTask(bundleTaskOptions));
-task("build", series("typescript", "bundle"));
+task('typescript', tscTask());
+task('bundle', bundleTask(bundleTaskOptions));
+task('build', series('typescript', 'bundle'));
 
 // Clean
-task("clean-local", cleanTask(DEFAULT_CLEAN_DIRECTORIES));
-task("clean-collateral", cleanCollateralTask(STANDARD_CLEAN_PATHS));
-task("clean", parallel("clean-local", "clean-collateral"));
+task('clean-local', cleanTask(DEFAULT_CLEAN_DIRECTORIES));
+task('clean-collateral', cleanCollateralTask(STANDARD_CLEAN_PATHS));
+task('clean', parallel('clean-local', 'clean-collateral'));
 
 // Package
-task("copyArtifacts", copyTask(copyTaskOptions));
-task("package", series("clean-collateral", "copyArtifacts"));
+task('copyArtifacts', copyTask(copyTaskOptions));
+task('package', series('clean-collateral', 'copyArtifacts'));
 
 // Local Deploy used for deploying local changes directly to output via the bundler. It does a full build and package first just in case.
-task(
-  "local-deploy",
-  watchTask(
-    ["scripts/**/*.ts", "behavior_packs/**/*.{json,lang,png}"],
-    series("clean-local", "build", "package")
-  )
-);
+task('local-deploy', watchTask(['scripts/**/*.ts', 'behavior_packs/**/*.{json,lang,png}'], series('clean-local', 'build', 'package')));
 
 // Mcaddon
-task("createMcaddonFile", mcaddonTask(mcaddonTaskOptions));
-task("mcaddon", series("clean-local", "build", "createMcaddonFile"));
+task('createMcaddonFile', mcaddonTask(mcaddonTaskOptions));
+task('mcaddon', series('clean-local', 'build', 'createMcaddonFile'));

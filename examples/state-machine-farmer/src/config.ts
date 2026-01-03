@@ -1,4 +1,4 @@
-export const VERSION = "1.21.130";
+export const VERSION = '1.21.130';
 export const BDS_PATH = `c:/apps/bds-${VERSION}`;
 
 export const FARM_BASE_X = 20;
@@ -19,11 +19,11 @@ export function getWaterPositions(size: number): [number, number][] {
 }
 
 export const STARTING_ITEMS = [
-  { name: "beetroot_seeds", count: 64 },
-  { name: "carrot", count: 64 },
-  { name: "potato", count: 64 },
-  { name: "wheat_seeds", count: 64 },
-  { name: "oak_sapling", count: 30 },
-  { name: "netherite_axe", count: 2 },
-  { name: "dirt", count: 128 },
+  { name: 'beetroot_seeds', count: 64 },
+  { name: 'carrot', count: 64 },
+  { name: 'potato', count: 64 },
+  { name: 'wheat_seeds', count: 64 },
+  { name: 'oak_sapling', count: 30 },
+  { name: 'netherite_axe', count: 2 },
+  { name: 'dirt', count: 128 },
 ];

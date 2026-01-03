@@ -1,12 +1,9 @@
 #!/usr/bin/env node
-import bedrockProtocol, {
-  type Player,
-  type Version,
-} from "bedrock-protocol";
+import bedrockProtocol, { type Player, type Version } from 'bedrock-protocol';
 const { Relay } = bedrockProtocol;
 
-import { PlayerAuthInputAnalyzer, type IPacketLogger } from "minecraft-logs-analyzers";
-import { PackentDumpWriter } from "./utils/packet-dump-writter.ts";
+import { PlayerAuthInputAnalyzer, type IPacketLogger } from 'minecraft-logs-analyzers';
+import { PackentDumpWriter } from './utils/packet-dump-writter.ts';
 
 // ============================================================================
 // Utilities
@@ -15,10 +12,9 @@ import { PackentDumpWriter } from "./utils/packet-dump-writter.ts";
 /** Format timestamp as yyyy-mm-dd-{seconds since midnight} */
 function formatTimestamp(date: Date = new Date()): string {
   const yyyy = date.getFullYear();
-  const mm = String(date.getMonth() + 1).padStart(2, "0");
-  const dd = String(date.getDate()).padStart(2, "0");
-  const secondsSinceMidnight =
-    date.getHours() * 3600 + date.getMinutes() * 60 + date.getSeconds();
+  const mm = String(date.getMonth() + 1).padStart(2, '0');
+  const dd = String(date.getDate()).padStart(2, '0');
+  const secondsSinceMidnight = date.getHours() * 3600 + date.getMinutes() * 60 + date.getSeconds();
   return `${yyyy}-${mm}-${dd}-${secondsSinceMidnight}`;
 }
 
@@ -38,14 +34,14 @@ interface DumpPacketsConfig {
 }
 
 const DEFAULTS: DumpPacketsConfig = {
-  listenHost: "0.0.0.0",
+  listenHost: '0.0.0.0',
   listenPort: 19150,
-  destHost: "127.0.0.1",
+  destHost: '127.0.0.1',
   destPort: 19198,
-  version: "1.21.130",
+  version: '1.21.130',
   offline: true,
-  profilesFolder: "./profiles",
-  logDir: "./logs",
+  profilesFolder: './profiles',
+  logDir: './logs',
 };
 
 // ============================================================================
@@ -53,18 +49,18 @@ const DEFAULTS: DumpPacketsConfig = {
 // ============================================================================
 
 const ARG_MAP: Record<string, keyof DumpPacketsConfig> = {
-  "--listen-host": "listenHost",
-  "--listen-port": "listenPort",
-  "-l": "listenPort",
-  "--dest-host": "destHost",
-  "-d": "destHost",
-  "--dest-port": "destPort",
-  "-p": "destPort",
-  "--version": "version",
-  "-v": "version",
-  "--profiles": "profilesFolder",
-  "--log-dir": "logDir",
-  "-o": "logDir",
+  '--listen-host': 'listenHost',
+  '--listen-port': 'listenPort',
+  '-l': 'listenPort',
+  '--dest-host': 'destHost',
+  '-d': 'destHost',
+  '--dest-port': 'destPort',
+  '-p': 'destPort',
+  '--version': 'version',
+  '-v': 'version',
+  '--profiles': 'profilesFolder',
+  '--log-dir': 'logDir',
+  '-o': 'logDir',
 };
 
 function parseArgs(args: string[]): DumpPacketsConfig {
@@ -74,24 +70,24 @@ function parseArgs(args: string[]): DumpPacketsConfig {
     const arg = args[i];
 
     // Help flag
-    if (arg === "--help" || arg === "-h") {
+    if (arg === '--help' || arg === '-h') {
       printHelp();
       process.exit(0);
     }
 
     // Boolean flags
-    if (arg === "--offline") {
+    if (arg === '--offline') {
       config.offline = true;
       continue;
     }
-    if (arg === "--online") {
+    if (arg === '--online') {
       config.offline = false;
       continue;
     }
 
     // Handle --key=value format
-    if (arg.includes("=")) {
-      const [key, value] = arg.split("=", 2);
+    if (arg.includes('=')) {
+      const [key, value] = arg.split('=', 2);
       const configKey = ARG_MAP[key];
       if (configKey) {
         setConfigValue(config, configKey, value);
@@ -109,15 +105,11 @@ function parseArgs(args: string[]): DumpPacketsConfig {
   return config;
 }
 
-function setConfigValue(
-  config: DumpPacketsConfig,
-  key: keyof DumpPacketsConfig,
-  value: string
-): void {
-  if (key === "listenPort" || key === "destPort") {
+function setConfigValue(config: DumpPacketsConfig, key: keyof DumpPacketsConfig, value: string): void {
+  if (key === 'listenPort' || key === 'destPort') {
     (config as any)[key] = parseInt(value, 10);
-  } else if (key === "offline") {
-    (config as any)[key] = value === "true";
+  } else if (key === 'offline') {
+    (config as any)[key] = value === 'true';
   } else {
     (config as any)[key] = value;
   }
@@ -171,11 +163,11 @@ main();
 function main(): void {
   const config = parseArgs(process.argv.slice(2));
 
-  console.log("Starting packet dump relay with config:");
+  console.log('Starting packet dump relay with config:');
   console.log(`  Listen: ${config.listenHost}:${config.listenPort}`);
   console.log(`  Destination: ${config.destHost}:${config.destPort}`);
   console.log(`  Version: ${config.version}`);
-  console.log(`  Auth: ${config.offline ? "offline" : "online"}`);
+  console.log(`  Auth: ${config.offline ? 'offline' : 'online'}`);
   console.log(`  Profiles: ${config.profilesFolder}`);
   console.log(`  Log dir: ${config.logDir}`);
   console.log();
@@ -199,8 +191,8 @@ function start(config: DumpPacketsConfig): void {
     omitParseErrors: true,
   });
 
-  relay.on("connect", (player: Player) => {
-    console.log("Client connected, starting packet capture...");
+  relay.on('connect', (player: Player) => {
+    console.log('Client connected, starting packet capture...');
 
     // Generate shared base path for both log files
     const basePath = `${config.logDir}/${config.version}-${formatTimestamp()}`;
@@ -210,18 +202,18 @@ function start(config: DumpPacketsConfig): void {
     console.log(`  Writing to: ${basePath}.bin`);
     console.log(`  Writing to: ${basePath}.jsonl`);
 
-    player.on("clientbound", (_, des) => {
-      logger.log("S", des.data.name, des.data.params);
+    player.on('clientbound', (_, des) => {
+      logger.log('S', des.data.name, des.data.params);
       writter.writeClientbound(des.fullBuffer);
     });
 
-    player.on("serverbound", (_, des) => {
-      logger.log("C", des.data.name, des.data.params);
+    player.on('serverbound', (_, des) => {
+      logger.log('C', des.data.name, des.data.params);
       writter.writeServerbound(des.fullBuffer);
     });
 
-    player.on("close", () => {
-      console.log("Client disconnected, closing logger...");
+    player.on('close', () => {
+      console.log('Client disconnected, closing logger...');
       logger.close();
       writter.close();
     });

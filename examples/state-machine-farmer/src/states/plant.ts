@@ -1,13 +1,13 @@
-import { StateBehavior } from "@nxg-org/mineflayer-static-statemachine";
-import mineflayerPathfinder from "mineflayer-pathfinder";
+import { StateBehavior } from '@nxg-org/mineflayer-static-statemachine';
+import mineflayerPathfinder from 'mineflayer-pathfinder';
 const { goals } = mineflayerPathfinder;
-import { Vec3 } from "vec3";
-import type { FarmingContext } from "../context.ts";
-import { SEED_TYPES } from "../constants.ts";
-import { sleep } from "../utils/index.ts";
+import { Vec3 } from 'vec3';
+import type { FarmingContext } from '../context.ts';
+import { SEED_TYPES } from '../constants.ts';
+import { sleep } from '../utils/index.ts';
 
 export class PlantState extends StateBehavior {
-  name = "plant";
+  name = 'plant';
   private done = false;
 
   get ctx(): FarmingContext | undefined {
@@ -30,7 +30,7 @@ export class PlantState extends StateBehavior {
     const seedType = this.ctx.seedForReplant || this.getLowestInventorySeed();
 
     if (!farmlandPos || !seedType) {
-      console.log("No farmland or seed available");
+      console.log('No farmland or seed available');
       this.done = true;
       return;
     }
@@ -42,7 +42,7 @@ export class PlantState extends StateBehavior {
     try {
       await this.plantSeed(farmlandPos, seedType);
     } catch (err) {
-      console.log("Plant error:", err);
+      console.log('Plant error:', err);
     } finally {
       this.ctx.farmlandPosition = null;
       this.ctx.foundFarmland = null;
@@ -68,7 +68,7 @@ export class PlantState extends StateBehavior {
   }
 
   private async plantSeed(farmlandPos: Vec3, seedType: string): Promise<void> {
-    const seed = this.bot.inventory.slots.find(s => s?.name === seedType);
+    const seed = this.bot.inventory.slots.find((s) => s?.name === seedType);
     if (!seed) {
       console.log(`No ${seedType} in inventory`);
       return;
@@ -81,21 +81,21 @@ export class PlantState extends StateBehavior {
     await sleep(10);
 
     if (this.bot.heldItem?.name !== seed.name) {
-      await this.bot.equip(seed, "hand");
+      await this.bot.equip(seed, 'hand');
       await sleep(10);
     }
 
     const farmland = this.bot.blockAt(farmlandPos);
-    if (!farmland || farmland.name !== "farmland") return;
+    if (!farmland || farmland.name !== 'farmland') return;
 
     const above = this.bot.blockAt(farmlandPos.offset(0, 1, 0));
-    if (above && above.name !== "air") return;
+    if (above && above.name !== 'air') return;
 
     console.log(`Planting ${seedType} at ${farmlandPos}`);
     await this.bot.placeBlock(farmland, new Vec3(0, 1, 0));
 
     const afterPlant = this.bot.blockAt(farmlandPos.offset(0, 1, 0));
-    if (afterPlant && afterPlant.name !== "air") {
+    if (afterPlant && afterPlant.name !== 'air') {
       this.ctx!.planted = true;
       console.log(`Planted ${seedType}`);
     }

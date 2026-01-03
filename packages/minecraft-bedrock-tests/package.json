@@ -1,0 +1,24 @@
+{
+  "name": "minecraft-bedrock-tests",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "exports": "./src/index.ts",
+  "scripts": {
+    "test": "mocha --exit test/*.mts",
+    "test:parallel": "mocha --parallel --jobs 4 --exit test/*.mts",
+    "mocha_test": "mocha --reporter spec --exit",
+    "collect": "node scripts/collect-packets.ts"
+  },
+  "dependencies": {
+    "@minecraft/server": "^2.4.0",
+    "bedrock-protocol": "^3.52.0",
+    "mineflayer": "*",
+    "mineflayer-pathfinder": "^2.4.5",
+    "vec3": "^0.1.10"
+  },
+  "devDependencies": {
+    "expect": "^29.7.0",
+    "mocha": "^10.2.0"
+  }
+}

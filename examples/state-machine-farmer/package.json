@@ -9,7 +9,7 @@
   "license": "MIT",
   "dependencies": {
     "mineflayer": "*",
-    "mineflayer-bds-tests": "*",
+    "minecraft-bedrock-tests": "*",
     "mineflayer-pathfinder": "^2.4.5",
     "@nxg-org/mineflayer-static-statemachine": "^0.3.4",
     "vec3": "^0.1.10"

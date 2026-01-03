@@ -1,15 +1,15 @@
-import { StateBehavior } from "@nxg-org/mineflayer-static-statemachine";
-import mineflayerPathfinder from "mineflayer-pathfinder";
+import { StateBehavior } from '@nxg-org/mineflayer-static-statemachine';
+import mineflayerPathfinder from 'mineflayer-pathfinder';
 const { goals } = mineflayerPathfinder;
-import { Vec3 } from "vec3";
-import type { FarmingContext } from "../context.ts";
-import { SEARCH_RADIUS, CROP_BLOCKS, MAX_CROP_GROWTH, CROP_TO_SEED } from "../constants.ts";
-import { sleep } from "../utils/index.ts";
+import { Vec3 } from 'vec3';
+import type { FarmingContext } from '../context.ts';
+import { SEARCH_RADIUS, CROP_BLOCKS, MAX_CROP_GROWTH, CROP_TO_SEED } from '../constants.ts';
+import { sleep } from '../utils/index.ts';
 
 const SAME_DIR_ANGLE = Math.PI / 4;
 
 export class HarvestState extends StateBehavior {
-  name = "harvest";
+  name = 'harvest';
   private done = false;
 
   get ctx(): FarmingContext | undefined {
@@ -33,7 +33,7 @@ export class HarvestState extends StateBehavior {
 
     const best = this.findBestCrop();
     if (!best) {
-      console.log("No mature crops");
+      console.log('No mature crops');
       this.ctx.harvestDirection = null;
       this.done = true;
       return;
@@ -46,7 +46,7 @@ export class HarvestState extends StateBehavior {
     try {
       await this.harvestCrop(best.pos, best.type);
     } catch (err) {
-      console.log("Harvest error:", err);
+      console.log('Harvest error:', err);
     } finally {
       this.done = true;
     }
@@ -61,7 +61,11 @@ export class HarvestState extends StateBehavior {
       const blockType = this.bot.registry.blocksByName[cropName];
       if (!blockType) continue;
 
-      const found = this.bot.findBlocks({ matching: blockType.id, maxDistance: SEARCH_RADIUS, count: 64 });
+      const found = this.bot.findBlocks({
+        matching: blockType.id,
+        maxDistance: SEARCH_RADIUS,
+        count: 64,
+      });
       for (const pos of found) {
         const block = this.bot.blockAt(pos);
         // @ts-ignore - Bedrock specific
@@ -101,7 +105,7 @@ export class HarvestState extends StateBehavior {
     await sleep(100);
 
     const updated = this.bot.blockAt(pos);
-    if (!updated || updated.name === "air") {
+    if (!updated || updated.name === 'air') {
       this.ctx!.harvested = true;
       this.ctx!.seedForReplant = CROP_TO_SEED[cropType];
       this.ctx!.farmlandPosition = pos.offset(0, -1, 0);

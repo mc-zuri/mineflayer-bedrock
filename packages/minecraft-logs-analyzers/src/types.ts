@@ -2,7 +2,7 @@
  * Shared types for minecraft-logs-analyzers
  */
 
-export type Direction = "C" | "S";
+export type Direction = 'C' | 'S';
 
 export interface LogEntry {
   /** Timestamp in ms since capture start */
@@ -21,10 +21,7 @@ export interface IPacketLogger {
   /** Log a packet */
   log(direction: Direction, name: string, packet: unknown): void;
   /** Attach to a bedrock-protocol client */
-  attachToBot(client: {
-    on(event: "packet", cb: (packet: unknown) => void): void;
-    on(event: "writePacket", cb: (name: string, params: unknown) => void): void;
-  }): void;
+  attachToBot(client: { on(event: 'packet', cb: (packet: unknown) => void): void; on(event: 'writePacket', cb: (name: string, params: unknown) => void): void }): void;
   /** Set registry for item/block name resolution */
   setRegistry?(registry: unknown): void;
   /** Log a custom message/event */
@@ -62,10 +59,7 @@ export type PacketParamsMap = globalThis.PacketParamsMap;
 export type PacketParams<K extends keyof PacketParamsMap> = PacketParamsMap[K];
 
 /** Handler function for a specific packet type */
-export type PacketHandler<K extends keyof PacketParamsMap> = (
-  base: LogEntry,
-  packet: PacketParams<K>
-) => LogEntry | null;
+export type PacketHandler<K extends keyof PacketParamsMap> = (base: LogEntry, packet: PacketParams<K>) => LogEntry | null;
 
 /** Create a typed handler map for a set of packet names */
 export type PacketHandlerMap<Names extends keyof PacketParamsMap> = {

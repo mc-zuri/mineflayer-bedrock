@@ -1,23 +1,17 @@
-import { BaseAnalyzer } from "../base-analyzer.ts";
-import type {
-  Direction,
-  LogEntry,
-  AnalyzerConfig,
-  PacketParams,
-  PacketParamsMap,
-} from "../types.ts";
+import { BaseAnalyzer } from '../base-analyzer.ts';
+import type { Direction, LogEntry, AnalyzerConfig, PacketParams, PacketParamsMap } from '../types.ts';
 
 // Use const assertion + satisfies for type-safe packet names with autocomplete
 const PACKETS_TO_LOG = [
-  "player_action",
-  "inventory_transaction",
-  "item_stack_request",
-  "item_stack_response",
-  "mob_equipment",
-  "inventory_slot",
-  "inventory_content",
-  "player_auth_input",
-  "animate",
+  'player_action',
+  'inventory_transaction',
+  'item_stack_request',
+  'item_stack_response',
+  'mob_equipment',
+  'inventory_slot',
+  'inventory_content',
+  'player_auth_input',
+  'animate',
 ] as const satisfies readonly (keyof PacketParamsMap)[];
 
 /** Union type of all inventory-related packet names */
@@ -30,7 +24,7 @@ export type InventoryPacketName = (typeof PACKETS_TO_LOG)[number];
  */
 export class InventoryAnalyzer extends BaseAnalyzer {
   readonly config: AnalyzerConfig<InventoryPacketName> = {
-    name: "inventory",
+    name: 'inventory',
     packets: PACKETS_TO_LOG,
   };
 
@@ -46,8 +40,8 @@ export class InventoryAnalyzer extends BaseAnalyzer {
     if (!this.config.packets.includes(name as InventoryPacketName)) return false;
 
     // For player_auth_input, only log if there's block_action or item_stack_request
-    if (name === "player_auth_input") {
-      const p = packet as PacketParams<"player_auth_input">;
+    if (name === 'player_auth_input') {
+      const p = packet as PacketParams<'player_auth_input'>;
       const hasBlockAction = p.block_action && Array.isArray(p.block_action) && p.block_action.length > 0;
       const hasItemStackRequest = !!(p.item_stack_request && p.input_data?.item_stack_request);
       return hasBlockAction || hasItemStackRequest;
@@ -56,13 +50,9 @@ export class InventoryAnalyzer extends BaseAnalyzer {
     return true;
   }
 
-  protected extractFields(
-    direction: Direction,
-    name: string,
-    packet: unknown
-  ): LogEntry | null {
+  protected extractFields(direction: Direction, name: string, packet: unknown): LogEntry | null {
     // Track tick from player_auth_input
-    if (name === "player_auth_input") {
+    if (name === 'player_auth_input') {
       this.updateTick(packet as { tick?: number });
     }
 
@@ -79,9 +69,11 @@ export class InventoryAnalyzer extends BaseAnalyzer {
   // Typed Packet Handlers
   // ============================================================================
 
-  private handlers: { [K in InventoryPacketName]: (base: LogEntry, packet: unknown) => LogEntry | null } = {
+  private handlers: {
+    [K in InventoryPacketName]: (base: LogEntry, packet: unknown) => LogEntry | null;
+  } = {
     player_action: (base, packet) => {
-      const p = packet as PacketParams<"player_action">;
+      const p = packet as PacketParams<'player_action'>;
       return {
         ...base,
         action: p.action,
@@ -91,7 +83,7 @@ export class InventoryAnalyzer extends BaseAnalyzer {
     },
 
     inventory_transaction: (base, packet) => {
-      const p = packet as PacketParams<"inventory_transaction">;
+      const p = packet as PacketParams<'inventory_transaction'>;
 
       // Define transaction data type with all possible fields from different transaction types
       type TransactionData = {
@@ -119,9 +111,7 @@ export class InventoryAnalyzer extends BaseAnalyzer {
         slot: txData?.hotbar_slot,
         item: txData?.held_item ? this.itemName(txData.held_item) : undefined,
         itemCount: txData?.held_item?.count,
-        pos: txData?.block_position
-          ? [txData.block_position.x, txData.block_position.y, txData.block_position.z]
-          : undefined,
+        pos: txData?.block_position ? [txData.block_position.x, txData.block_position.y, txData.block_position.z] : undefined,
         actionsLen: p.transaction?.actions?.length,
         actions: txActions?.length ? txActions : undefined,
         heldStackId: txData?.held_item?.stack_id,
@@ -130,7 +120,7 @@ export class InventoryAnalyzer extends BaseAnalyzer {
     },
 
     item_stack_request: (base, packet) => {
-      const p = packet as PacketParams<"item_stack_request">;
+      const p = packet as PacketParams<'item_stack_request'>;
       const firstRequest = p.requests?.[0];
       const actions = firstRequest?.actions?.map((a) => ({
         type: a.type_id,
@@ -147,8 +137,8 @@ export class InventoryAnalyzer extends BaseAnalyzer {
     },
 
     item_stack_response: (base, packet) => {
-      const p = packet as PacketParams<"item_stack_response">;
-      const responses = (p.responses)?.map((r) => ({
+      const p = packet as PacketParams<'item_stack_response'>;
+      const responses = p.responses?.map((r) => ({
         reqId: r.request_id,
         status: r.status,
       }));
@@ -160,7 +150,7 @@ export class InventoryAnalyzer extends BaseAnalyzer {
     },
 
     mob_equipment: (base, packet) => {
-      const p = packet as PacketParams<"mob_equipment">;
+      const p = packet as PacketParams<'mob_equipment'>;
       return {
         ...base,
         item: this.itemName(p.item),
@@ -171,7 +161,7 @@ export class InventoryAnalyzer extends BaseAnalyzer {
     },
 
     inventory_slot: (base, packet) => {
-      const p = packet as PacketParams<"inventory_slot">;
+      const p = packet as PacketParams<'inventory_slot'>;
       const item = p.item as { count?: number; stack_size?: number; stack_id?: number } | undefined;
       return {
         ...base,
@@ -184,7 +174,7 @@ export class InventoryAnalyzer extends BaseAnalyzer {
     },
 
     inventory_content: (base, packet) => {
-      const p = packet as PacketParams<"inventory_content">;
+      const p = packet as PacketParams<'inventory_content'>;
       type InventoryItem = { network_id?: number; count?: number; stack_size?: number };
       const input = p.input as InventoryItem[] | undefined;
       const items = input?.filter((i) => i && i.network_id !== 0);
@@ -205,13 +195,17 @@ export class InventoryAnalyzer extends BaseAnalyzer {
     },
 
     player_auth_input: (base, packet) => {
-      const p = packet as PacketParams<"player_auth_input">;
+      const p = packet as PacketParams<'player_auth_input'>;
       const authEntry: LogEntry = {
         ...base,
-        tick: typeof p.tick === "bigint" ? Number(p.tick) : p.tick,
+        tick: typeof p.tick === 'bigint' ? Number(p.tick) : p.tick,
       };
 
-      type BlockAction = { action?: string; position?: { x: number; y: number; z: number }; face?: number };
+      type BlockAction = {
+        action?: string;
+        position?: { x: number; y: number; z: number };
+        face?: number;
+      };
       if (p.block_action && p.block_action.length > 0) {
         authEntry.blockAction = (p.block_action as BlockAction[]).map((a) => ({
           action: a.action,
@@ -220,7 +214,12 @@ export class InventoryAnalyzer extends BaseAnalyzer {
         }));
       }
 
-      type ItemStackAction = { type_id?: string; hotbar_slot?: number; predicted_durability?: number; network_id?: number };
+      type ItemStackAction = {
+        type_id?: string;
+        hotbar_slot?: number;
+        predicted_durability?: number;
+        network_id?: number;
+      };
       type ItemStackRequest = { request_id?: number; actions?: ItemStackAction[] };
       if (p.item_stack_request && p.input_data?.item_stack_request) {
         const req = p.item_stack_request as unknown as ItemStackRequest;
@@ -239,7 +238,7 @@ export class InventoryAnalyzer extends BaseAnalyzer {
     },
 
     animate: (base, packet) => {
-      const p = packet as PacketParams<"animate"> & { swing_source?: unknown };
+      const p = packet as PacketParams<'animate'> & { swing_source?: unknown };
       return {
         ...base,
         action: p.action_id,

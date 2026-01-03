@@ -1,4 +1,4 @@
-import type { Vec3 } from "vec3";
+import type { Vec3 } from 'vec3';
 
 export interface FarmingContext {
   foundCrop: Vec3 | null;
@@ -34,7 +34,7 @@ export function createFarmingContext(): FarmingContext {
   };
 }
 
-declare module "mineflayer" {
+declare module 'mineflayer' {
   interface Bot {
     farmingContext?: FarmingContext;
   }

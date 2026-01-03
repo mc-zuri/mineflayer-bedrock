@@ -1,14 +1,14 @@
-import { BaseAnalyzer } from "../base-analyzer.ts";
-import type { AnalyzerConfig, Direction, LogEntry } from "../types.ts";
+import { BaseAnalyzer } from '../base-analyzer.ts';
+import type { AnalyzerConfig, Direction, LogEntry } from '../types.ts';
 
-const PACKETS_TO_LOG = ["player_auth_input"] as const;
+const PACKETS_TO_LOG = ['player_auth_input'] as const;
 
 type Vec3f = { x: number; y: number; z: number };
 type InputData = Record<string, boolean>;
 
 export class PlayerAuthInputAnalyzer extends BaseAnalyzer {
   readonly config: AnalyzerConfig<(typeof PACKETS_TO_LOG)[number]> = {
-    name: "player-auth-input",
+    name: 'player-auth-input',
     packets: PACKETS_TO_LOG,
   };
 

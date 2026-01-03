@@ -1,7 +1,7 @@
-import { Movements } from 'mineflayer-pathfinder'
+import { Movements } from 'mineflayer-pathfinder';
 
 declare module 'mineflayer' {
-    interface BedrockBot {
-        defaultMovements: Movements;
-    }
+  interface BedrockBot {
+    defaultMovements: Movements;
+  }
 }

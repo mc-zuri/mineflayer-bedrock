@@ -1,16 +1,13 @@
-import { StateBehavior } from "@nxg-org/mineflayer-static-statemachine";
-import mineflayerPathfinder from "mineflayer-pathfinder";
+import { StateBehavior } from '@nxg-org/mineflayer-static-statemachine';
+import mineflayerPathfinder from 'mineflayer-pathfinder';
 const { goals } = mineflayerPathfinder;
-import { Vec3 } from "vec3";
-import type { FarmingContext } from "../context.ts";
-import {
-  SEARCH_RADIUS, LOG_BLOCKS, SAPLING_BLOCKS, PLANTABLE_GROUND,
-  MIN_TREE_SPACING, MIN_VERTICAL_SPACE, MAX_EXTRA_SAPLINGS_PER_CYCLE,
-} from "../constants.ts";
-import { sleep } from "../utils/index.ts";
+import { Vec3 } from 'vec3';
+import type { FarmingContext } from '../context.ts';
+import { SEARCH_RADIUS, LOG_BLOCKS, SAPLING_BLOCKS, PLANTABLE_GROUND, MIN_TREE_SPACING, MIN_VERTICAL_SPACE, MAX_EXTRA_SAPLINGS_PER_CYCLE } from '../constants.ts';
+import { sleep } from '../utils/index.ts';
 
 export class PlantTreeState extends StateBehavior {
-  name = "plantTree";
+  name = 'plantTree';
   private done = false;
 
   get ctx(): FarmingContext | undefined {
@@ -34,7 +31,7 @@ export class PlantTreeState extends StateBehavior {
       }
       await this.plantExtraSaplings();
     } catch (err) {
-      console.log("PlantTree error:", err);
+      console.log('PlantTree error:', err);
     } finally {
       this.ctx.treeBasePosition = null;
       this.ctx.saplingType = null;
@@ -43,7 +40,7 @@ export class PlantTreeState extends StateBehavior {
   }
 
   private async plantSaplingAt(pos: Vec3, saplingType: string): Promise<boolean> {
-    const sapling = this.bot.inventory.slots.find(s => s?.name === saplingType);
+    const sapling = this.bot.inventory.slots.find((s) => s?.name === saplingType);
     if (!sapling) return false;
 
     const groundPos = pos.offset(0, -1, 0);
@@ -51,7 +48,7 @@ export class PlantTreeState extends StateBehavior {
     if (!ground || !PLANTABLE_GROUND.includes(ground.name)) return false;
 
     await this.navigateTo(pos, 2);
-    await this.bot.equip(sapling, "hand");
+    await this.bot.equip(sapling, 'hand');
     await sleep(100);
     await this.bot.placeBlock(ground, new Vec3(0, 1, 0));
     console.log(`Planted ${saplingType} at ${pos}`);
@@ -64,14 +61,14 @@ export class PlantTreeState extends StateBehavior {
 
     let planted = 0;
     for (const groundPos of groundBlocks) {
-      const sapling = this.bot.inventory.slots.find(s => s && SAPLING_BLOCKS.includes(s.name));
+      const sapling = this.bot.inventory.slots.find((s) => s && SAPLING_BLOCKS.includes(s.name));
       if (!sapling || planted >= MAX_EXTRA_SAPLINGS_PER_CYCLE) break;
 
       if (!this.isValidPlantingSpot(groundPos)) continue;
 
       try {
         await this.navigateTo(groundPos, 2);
-        await this.bot.equip(sapling, "hand");
+        await this.bot.equip(sapling, 'hand');
         await sleep(100);
 
         const ground = this.bot.blockAt(groundPos);
@@ -92,8 +89,8 @@ export class PlantTreeState extends StateBehavior {
   }
 
   private findGroundBlocks(): Vec3[] {
-    const dirtType = this.bot.registry.blocksByName["dirt"];
-    const grassType = this.bot.registry.blocksByName["grass_block"] || this.bot.registry.blocksByName["grass"];
+    const dirtType = this.bot.registry.blocksByName['dirt'];
+    const grassType = this.bot.registry.blocksByName['grass_block'] || this.bot.registry.blocksByName['grass'];
 
     const ids: number[] = [];
     if (dirtType) ids.push(dirtType.id);
@@ -105,11 +102,11 @@ export class PlantTreeState extends StateBehavior {
 
   private isValidPlantingSpot(groundPos: Vec3): boolean {
     const above = this.bot.blockAt(groundPos.offset(0, 1, 0));
-    if (!above || above.name !== "air") return false;
+    if (!above || above.name !== 'air') return false;
 
     for (let y = 1; y <= MIN_VERTICAL_SPACE; y++) {
       const block = this.bot.blockAt(groundPos.offset(0, y, 0));
-      if (block && block.name !== "air") return false;
+      if (block && block.name !== 'air') return false;
     }
 
     for (const blockName of [...LOG_BLOCKS, ...SAPLING_BLOCKS]) {
