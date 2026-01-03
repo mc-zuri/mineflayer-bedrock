@@ -1,0 +1,17 @@
+{
+  "name": "@mc-zuri-org/state-machine-farmer",
+  "version": "1.0.0",
+  "description": "Mineflayer Bedrock farming bot using state machine",
+  "type": "module",
+  "scripts": {
+    "start": "node src/main.ts"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "mineflayer": "*",
+    "mineflayer-bds-tests": "*",
+    "mineflayer-pathfinder": "^2.4.5",
+    "@nxg-org/mineflayer-static-statemachine": "^0.3.4",
+    "vec3": "^0.1.10"
+  }
+}
