@@ -3,7 +3,7 @@ import bedrockProtocol, { type Player, type Version } from 'bedrock-protocol';
 const { Relay } = bedrockProtocol;
 
 import { PlayerAuthInputAnalyzer, type IPacketLogger } from 'minecraft-logs-analyzers';
-import { PackentDumpWriter } from './utils/packet-dump-writter.ts';
+import { PacketDumpWriter } from 'minecraft-bedrock-server';
 
 // ============================================================================
 // Utilities
@@ -181,6 +181,7 @@ function start(config: DumpPacketsConfig): void {
     version,
     host: config.listenHost,
     port: config.listenPort,
+    offline: config.offline,
     enableChunkCaching: false,
     destination: {
       host: config.destHost,
@@ -197,7 +198,7 @@ function start(config: DumpPacketsConfig): void {
     // Generate shared base path for both log files
     const basePath = `${config.logDir}/${config.version}-${formatTimestamp()}`;
     const logger: IPacketLogger = new PlayerAuthInputAnalyzer(basePath);
-    const writter = new PackentDumpWriter(basePath, config.version);
+    const writter = new PacketDumpWriter(basePath, config.version);
 
     console.log(`  Writing to: ${basePath}.bin`);
     console.log(`  Writing to: ${basePath}.jsonl`);

@@ -1,0 +1,17 @@
+{
+  "name": "minecraft-bedrock-server",
+  "version": "21.130.0",
+  "type": "module",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "bin": {
+    "generate-packets": "scripts/generate-packets.ts"
+  },
+  "scripts": {
+    "generate-packets": "node --experimental-strip-types scripts/generate-packets.ts"
+  },
+  "dependencies": {
+    "bedrock-protocol": "^3.52.0",
+    "csbinary": "^2.1.4"
+  }
+}

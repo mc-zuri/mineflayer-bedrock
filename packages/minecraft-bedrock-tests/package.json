@@ -3,7 +3,6 @@
   "version": "0.0.1",
   "private": true,
   "type": "module",
-  "exports": "./src/index.ts",
   "scripts": {
     "test": "mocha --exit test/*.mts",
     "test:parallel": "mocha --parallel --jobs 4 --exit test/*.mts",
@@ -13,6 +12,7 @@
   "dependencies": {
     "@minecraft/server": "^2.4.0",
     "bedrock-protocol": "^3.52.0",
+    "minecraft-bedrock-server": "*",
     "mineflayer": "*",
     "mineflayer-pathfinder": "^2.4.5",
     "vec3": "^0.1.10"

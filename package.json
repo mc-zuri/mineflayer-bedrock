@@ -9,6 +9,9 @@
         "test:bedrock": "npm run mocha_test --workspace=mineflayer -- test/bedrockTest.mts",
         "test:bedrock-inventory": "npm run mocha_test --workspace=mineflayer -- test/inventoryTest.mts",
         "test:bds": "npm test --workspace=minecraft-bedrock-tests",
+        "test:client": "npm test --workspace=minecraft-client-tests",
+        "test:client:java": "npm run test:java --workspace=minecraft-client-tests",
+        "test:client:bedrock": "npm run test:bedrock --workspace=minecraft-client-tests",
         "collect:packets": "npm run collect --workspace=minecraft-bedrock-tests",
         "format": "prettier --write \"**/*.{ts,mts}\"",
         "format:check": "prettier --check \"**/*.{ts,mts}\""

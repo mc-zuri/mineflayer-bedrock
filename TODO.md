@@ -110,6 +110,13 @@ Tests to be implemented in `packages/minecraft-bedrock-tests/test/`.
 - [ ] Correct heldItem after receiving item
 - [ ] Update heldItem when switching slots
 
+### Inventory Window Slot Mapping (Mock Server Tests)
+> Note: Failing tests in `packages/mineflayer/test/inventoryTest.mts`
+- [ ] Fix `inventoryStart`/`inventoryEnd` for Bedrock - currently uses Java Edition values (9-45) but Bedrock inventory is slots 0-35. Set `inventoryStart=0`, `inventoryEnd=36` in `inventory.mts:59-61`
+- [ ] Fix `findInventoryItem` returns null for hotbar items (slot 0-8) because it searches from slot 9
+- [ ] Fix `count` method returns 0 for hotbar items (same root cause)
+- [ ] Fix `inventory_slot` packet format in test - `full_container_name` field needs correct Bedrock protocol structure
+
 ### Particles
 > Note: Requires particle plugin to handle spawn_particle_effect packet.
 - [ ] Receive particle events

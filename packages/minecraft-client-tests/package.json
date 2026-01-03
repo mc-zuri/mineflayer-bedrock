@@ -1,0 +1,35 @@
+{
+  "name": "minecraft-client-tests",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --experimental-strip-types --no-warnings node_modules/mocha/bin/mocha.js --exit --timeout 180000 test/*.test.mts",
+    "test:parallel": "node --experimental-strip-types --no-warnings node_modules/mocha/bin/mocha.js --parallel --jobs 4 --exit --timeout 180000 test/*.test.mts",
+    "test:java": "cross-env TEST_EDITIONS=java npm test",
+    "test:bedrock": "cross-env TEST_EDITIONS=bedrock npm test",
+    "test:mock": "cross-env TEST_MODES=mock npm test",
+    "test:real": "cross-env TEST_MODES=real npm test",
+    "test:java:mock": "cross-env TEST_EDITIONS=java TEST_MODES=mock npm test",
+    "test:java:real": "cross-env TEST_EDITIONS=java TEST_MODES=real npm test",
+    "test:bedrock:mock": "cross-env TEST_EDITIONS=bedrock TEST_MODES=mock npm test",
+    "test:bedrock:real": "cross-env TEST_EDITIONS=bedrock TEST_MODES=real npm test",
+    "mocha_test": "node --experimental-strip-types --no-warnings node_modules/mocha/bin/mocha.js --reporter spec --exit"
+  },
+  "dependencies": {
+    "bedrock-protocol": "^3.52.0",
+    "minecraft-bedrock-server": "*",
+    "minecraft-protocol": "^1.50.0",
+    "minecraft-wrap": "^1.5.0",
+    "mineflayer": "*",
+    "prismarine-registry": "^1.11.0",
+    "vec3": "^0.1.10"
+  },
+  "devDependencies": {
+    "@types/mocha": "^10.0.10",
+    "@types/node": "^22.0.0",
+    "cross-env": "^10.1.0",
+    "expect": "^29.7.0",
+    "mocha": "^10.2.0"
+  }
+}

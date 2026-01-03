@@ -2,8 +2,8 @@ import { expect } from 'expect';
 import type { Bot } from 'mineflayer';
 import { Vec3 } from 'vec3';
 import {
-  startBDSServer,
-  connectBotToBDS,
+  startExternalServer,
+  connectBotToExternalServer,
   waitForBotSpawn,
   waitFor,
   sleep,
@@ -17,19 +17,19 @@ import {
   getServerPlayerState,
   getClientInventory,
   assertInventoryMatch,
-  type BDSServer,
+  type ExternalServer,
   type ServerInventoryItem,
-} from '../src/index.ts';
+} from 'minecraft-bedrock-server';
 
 describe('BDS Integration: Inventory', function () {
   this.timeout(120_000); // BDS tests need longer timeout
 
-  let server: BDSServer;
+  let server: ExternalServer;
   let bot: Bot;
 
   before(async function () {
     this.timeout(180_000); // Extra time for server download/startup
-    server = await startBDSServer({
+    server = await startExternalServer({
       version: '1.21.130',
       // Uses default: survival mode, peaceful difficulty, cheats enabled
     });
@@ -40,7 +40,7 @@ describe('BDS Integration: Inventory', function () {
   });
 
   beforeEach(async function () {
-    bot = await connectBotToBDS(server);
+    bot = await connectBotToExternalServer(server);
     await waitForBotSpawn(bot);
     // Clear inventory before each test (ignore errors if already empty)
     try {

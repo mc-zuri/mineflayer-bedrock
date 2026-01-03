@@ -2,8 +2,8 @@ import { expect } from 'expect';
 import type { Bot } from 'mineflayer';
 import { Vec3 } from 'vec3';
 import {
-  startBDSServer,
-  connectBotToBDS,
+  startExternalServer,
+  connectBotToExternalServer,
   waitForBotSpawn,
   waitFor,
   sleep,
@@ -15,9 +15,9 @@ import {
   getServerBlockInventory,
   assertInventoryMatch,
   getClientInventory,
-  type BDSServer,
+  type ExternalServer,
   fill,
-} from '../src/index.ts';
+} from 'minecraft-bedrock-server';
 
 /**
  * Use Chests Test
@@ -34,7 +34,7 @@ import {
 describe('BDS Integration: Use Chests', function () {
   this.timeout(180_000);
 
-  let server: BDSServer;
+  let server: ExternalServer;
   let bot: Bot;
 
   // Test locations - relative to test area
@@ -49,7 +49,7 @@ describe('BDS Integration: Use Chests', function () {
 
   before(async function () {
     this.timeout(180_000);
-    server = await startBDSServer({
+    server = await startExternalServer({
       version: '1.21.130',
     });
   });
@@ -59,7 +59,7 @@ describe('BDS Integration: Use Chests', function () {
   });
 
   beforeEach(async function () {
-    bot = await connectBotToBDS(server);
+    bot = await connectBotToExternalServer(server);
     await waitForBotSpawn(bot);
     await bot.waitForChunksToLoad();
 

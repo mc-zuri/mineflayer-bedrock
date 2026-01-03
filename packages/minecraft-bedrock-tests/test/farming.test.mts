@@ -2,8 +2,8 @@ import { expect } from 'expect';
 import type { Bot } from 'mineflayer';
 import { Vec3 } from 'vec3';
 import {
-  startBDSServer,
-  connectBotToBDS,
+  startExternalServer,
+  connectBotToExternalServer,
   waitForBotSpawn,
   waitFor,
   sleep,
@@ -14,8 +14,8 @@ import {
   getServerInventory,
   getClientInventory,
   assertInventoryMatch,
-  type BDSServer,
-} from '../src/index.ts';
+  type ExternalServer,
+} from 'minecraft-bedrock-server';
 
 // Helper to wait for block to appear after setBlock
 async function waitForBlock(bot: Bot, pos: Vec3, expectedName: string, timeout = 10000) {
@@ -38,12 +38,12 @@ async function waitForBlock(bot: Bot, pos: Vec3, expectedName: string, timeout =
 describe('BDS Integration: Farming', function () {
   this.timeout(300_000); // 5 minutes for manual packet capture
 
-  let server: BDSServer;
+  let server: ExternalServer;
   let bot: Bot;
 
   before(async function () {
     this.timeout(180_000);
-    server = await startBDSServer({
+    server = await startExternalServer({
       version: '1.21.130',
     });
   });
@@ -53,7 +53,7 @@ describe('BDS Integration: Farming', function () {
   });
 
   beforeEach(async function () {
-    bot = await connectBotToBDS(server);
+    bot = await connectBotToExternalServer(server);
     await waitForBotSpawn(bot);
     await bot.waitForChunksToLoad();
     // await sleep(1000);

@@ -7,18 +7,18 @@
   },
   "exports": {
     ".": "./src/dump-packets.ts",
-    "./replay": "./src/replay/index.ts",
-    "./reader": "./src/utils/packet-dump-reader.ts"
+    "./replay": "./src/replay/index.ts"
   },
   "bin": {
-    "dump-packets": "src/dump-packets.ts"
+    "dump-packets": "./bin/dump-packets.js"
   },
   "scripts": {
-    "start": "node src/dump-packets.ts"
+    "start": "node --experimental-strip-types --disable-warning=ExperimentalWarning src/dump-packets.ts"
   },
   "dependencies": {
     "bedrock-protocol": "^3.52.0",
     "csbinary": "^2.1.4",
+    "minecraft-bedrock-server": "*",
     "minecraft-logs-analyzers": "*"
   }
 }

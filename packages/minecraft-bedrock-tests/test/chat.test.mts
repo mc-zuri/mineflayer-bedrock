@@ -1,6 +1,6 @@
 import { expect } from 'expect';
 import type { Bot } from 'mineflayer';
-import { startBDSServer, connectBotToBDS, waitForBotSpawn, sleep, type BDSServer } from '../src/index.ts';
+import { startExternalServer, connectBotToExternalServer, waitForBotSpawn, sleep, type ExternalServer } from 'minecraft-bedrock-server';
 
 /**
  * Helper to wait for an event with timeout
@@ -21,7 +21,7 @@ function once<T extends any[]>(emitter: { once: (event: string, listener: (...ar
 /**
  * Send a chat message from server (appears as server message)
  */
-async function serverSay(server: BDSServer, message: string): Promise<void> {
+async function serverSay(server: ExternalServer, message: string): Promise<void> {
   await server.sendCommand(`say ${message}`);
   // await sleep(100);
 }
@@ -29,7 +29,7 @@ async function serverSay(server: BDSServer, message: string): Promise<void> {
 /**
  * Send a tellraw message to a player
  */
-async function serverTellraw(server: BDSServer, target: string, rawJson: string): Promise<void> {
+async function serverTellraw(server: ExternalServer, target: string, rawJson: string): Promise<void> {
   await server.sendCommand(`tellraw ${target} ${rawJson}`);
   // await sleep(100);
 }
@@ -37,7 +37,7 @@ async function serverTellraw(server: BDSServer, target: string, rawJson: string)
 /**
  * Send a whisper/tell to a player from server
  */
-async function serverTell(server: BDSServer, target: string, message: string): Promise<void> {
+async function serverTell(server: ExternalServer, target: string, message: string): Promise<void> {
   await server.sendCommand(`tell ${target} ${message}`);
   // await sleep(100);
 }
@@ -45,12 +45,12 @@ async function serverTell(server: BDSServer, target: string, message: string): P
 describe('BDS Integration: Chat', function () {
   this.timeout(120_000);
 
-  let server: BDSServer;
+  let server: ExternalServer;
   let bot: Bot;
 
   before(async function () {
     this.timeout(180_000);
-    server = await startBDSServer({
+    server = await startExternalServer({
       version: '1.21.130',
     });
   });
@@ -60,7 +60,7 @@ describe('BDS Integration: Chat', function () {
   });
 
   beforeEach(async function () {
-    bot = await connectBotToBDS(server);
+    bot = await connectBotToExternalServer(server);
     await waitForBotSpawn(bot);
     // await sleep(500);
   });

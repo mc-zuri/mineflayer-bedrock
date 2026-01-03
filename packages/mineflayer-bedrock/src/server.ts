@@ -1,4 +1,4 @@
-import { setupServer, getDataBuilder, initializeClient, startServer, waitForClientConnect } from 'mineflayer-bedrock-server';
+import { setupServer, getDataBuilder, initializeClient, startServer, waitForClientConnect } from 'minecraft-bedrock-server';
 
 const builder = getDataBuilder('1.21.130');
 builder.setInventoryItem(0, 'netherite_sword', 1, 1001);

@@ -5,7 +5,7 @@ import { viewerClickToMovePlugin } from './plugins/viewer-click-to-move.ts';
 import { pathFinderFollowPlugin } from './plugins/pathfinder-follow.ts';
 import type { protocolTypes } from './protocol.js';
 import { bedrockViewerPlugin } from './plugins/bedrock-viewer/index.ts';
-import { createReplayClient } from './bedrock-replay-protocol/index.ts';
+import { createReplayClient } from 'minecraft-bedrock-server';
 import { PlayerAuthInputAnalyzer } from 'minecraft-logs-analyzers';
 
 const basePath = `logs/192.168.1.130-${new Date().valueOf()}`;

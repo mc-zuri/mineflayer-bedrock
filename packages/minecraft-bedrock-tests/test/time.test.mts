@@ -1,6 +1,6 @@
 import { expect } from 'expect';
 import type { Bot } from 'mineflayer';
-import { startBDSServer, connectBotToBDS, waitForBotSpawn, sleep, type BDSServer } from '../src/index.ts';
+import { startExternalServer, connectBotToExternalServer, waitForBotSpawn, sleep, type ExternalServer } from 'minecraft-bedrock-server';
 
 function once(emitter: { once: (event: string, listener: (...args: any[]) => void) => void }, event: string, timeout = 10000): Promise<any[]> {
   return new Promise((resolve, reject) => {
@@ -17,12 +17,12 @@ function once(emitter: { once: (event: string, listener: (...args: any[]) => voi
 describe('BDS Integration: Time', function () {
   this.timeout(120_000);
 
-  let server: BDSServer;
+  let server: ExternalServer;
   let bot: Bot;
 
   before(async function () {
     this.timeout(180_000);
-    server = await startBDSServer({ version: '1.21.130' });
+    server = await startExternalServer({ version: '1.21.130' });
   });
 
   after(async function () {
@@ -30,7 +30,7 @@ describe('BDS Integration: Time', function () {
   });
 
   beforeEach(async function () {
-    bot = await connectBotToBDS(server);
+    bot = await connectBotToExternalServer(server);
     await waitForBotSpawn(bot);
     // await sleep(500);
   });

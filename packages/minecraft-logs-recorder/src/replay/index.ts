@@ -1,7 +1,7 @@
 'use strict';
 
 import { EventEmitter } from 'events';
-import { PacketDumpReader } from '../utils/packet-dump-reader.js';
+import { PacketDumpReader } from 'minecraft-bedrock-server';
 
 export class BedrockReplayClient extends EventEmitter {
   #reader;
