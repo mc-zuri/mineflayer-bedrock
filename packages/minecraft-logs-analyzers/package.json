@@ -1,0 +1,19 @@
+{
+  "name": "minecraft-logs-analyzers",
+  "version": "1.0.0",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./inventory-packet-logger": "./src/inventory-packet-logger.ts"
+  },
+  "bin": {
+    "analyze-packets": "src/analyze-packets.ts"
+  },
+  "scripts": {
+    "analyze": "node src/analyze-packets.ts"
+  },
+  "dependencies": {}
+}

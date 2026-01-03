@@ -1,0 +1,58 @@
+diff --git a/node_modules/bedrock-protocol/index.d.ts b/node_modules/bedrock-protocol/index.d.ts
+index 3f4a571..0a625b5 100644
+--- a/node_modules/bedrock-protocol/index.d.ts
++++ b/node_modules/bedrock-protocol/index.d.ts
+@@ -192,6 +192,9 @@ declare module 'bedrock-protocol' {
+     // Do not disconnect clients on server packet parsing errors and drop the packet instead (default: false)
+     omitParseErrors?: boolean
+     
++    // the path to store authentication caches, defaults to .minecraft
++    profilesFolder?: string | false;
++
+     // Dispatched when a new client has logged in, and we need authentication
+     // tokens to join the backend server. Cached after the first login.
+     // If this is not specified, the client will be disconnected with a login prompt.
+diff --git a/node_modules/bedrock-protocol/src/connection.js b/node_modules/bedrock-protocol/src/connection.js
+index f1e9051..4496cee 100644
+--- a/node_modules/bedrock-protocol/src/connection.js
++++ b/node_modules/bedrock-protocol/src/connection.js
+@@ -85,6 +85,7 @@ class Connection extends EventEmitter {
+     const packet = this.serializer.createPacketBuffer({ name, params })
+     batch.addEncodedPacket(packet)
+ 
++    this.emit('writePacket', name, params)
+     if (this.encryptionEnabled) {
+       this.sendEncryptedBatch(batch)
+     } else {
+@@ -109,6 +110,11 @@ class Connection extends EventEmitter {
+     if (this.sendQ.length) {
+       const batch = new Framer(this)
+       batch.addEncodedPackets(this.sendQ)
++
++      for(const buf of this.sendQ){
++        this.emitWritePacketBuffer(buf);
++      }
++
+       this.sendQ = []
+       this.sendIds = []
+       if (this.encryptionEnabled) {
+@@ -133,6 +139,7 @@ class Connection extends EventEmitter {
+     if (immediate) {
+       const batch = new Framer(this)
+       batch.addEncodedPacket(buffer)
++      this.emitWritePacketBuffer(buffer)
+       if (this.encryptionEnabled) {
+         this.sendEncryptedBatch(batch)
+       } else {
+@@ -190,6 +197,11 @@ class Connection extends EventEmitter {
+       throw Error('Bad packet header ' + buffer[0])
+     }
+   }
++
++  emitWritePacketBuffer(buffer){
++    const {data} = this.deserializer.parsePacketBuffer(buffer);
++    this.emit('writePacket', data.name, data.params)
++  }
+ }
+ 
+ module.exports = { ClientStatus, Connection }

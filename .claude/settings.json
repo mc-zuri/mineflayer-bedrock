@@ -1,0 +1,6 @@
+{
+  "enabledPlugins": {
+    "ralph-wiggum@claude-plugins-official": true,
+    "pr-review-toolkit@claude-plugins-official": true
+  }
+}
