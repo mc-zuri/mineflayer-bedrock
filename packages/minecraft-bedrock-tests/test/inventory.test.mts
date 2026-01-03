@@ -30,7 +30,7 @@ describe('BDS Integration: Inventory', function () {
   before(async function () {
     this.timeout(180_000); // Extra time for server download/startup
     server = await startExternalServer({
-      version: '1.21.130',
+      version: process.env.BDS_VERSION || '1.21.130',
       // Uses default: survival mode, peaceful difficulty, cheats enabled
     });
   });

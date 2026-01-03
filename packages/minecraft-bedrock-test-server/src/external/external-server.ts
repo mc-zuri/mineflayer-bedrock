@@ -59,24 +59,27 @@ export async function ensureBDSInstalled(version: string, bdsPath: string): Prom
 
   try {
     // Use minecraft-bedrock-server package to download
-    // Get latest version first
-    const versions = await bedrockServer.getLatestVersions();
-    const platformVersions = isWindows ? versions.windows : versions.linux;
-    const latestVersion = platformVersions?.version4 || platformVersions?.version3;
-    if (!latestVersion) {
-      throw new Error('Failed to get latest BDS version');
+    // Use requested version, or get latest if not specified
+    let downloadVersion = version;
+    if (!downloadVersion || downloadVersion === 'latest') {
+      const versions = await bedrockServer.getLatestVersions();
+      const platformVersions = isWindows ? versions.windows : versions.linux;
+      downloadVersion = platformVersions?.version4 || platformVersions?.version3;
+      if (!downloadVersion) {
+        throw new Error('Failed to get latest BDS version');
+      }
     }
-    console.log(`Downloading BDS ${latestVersion} to ${bdsPath}...`);
+    console.log(`Downloading BDS ${downloadVersion} to ${bdsPath}...`);
 
     // The npm package creates a folder named bds-{version}, so we work around this
     const parentDir = path.dirname(bdsPath);
     const targetDirName = path.basename(bdsPath);
-    const npmCreatedDir = path.join(parentDir, `bds-${latestVersion}`);
+    const npmCreatedDir = path.join(parentDir, `bds-${downloadVersion}`);
 
     // Use the npm package's options to control download location
-    await bedrockServer.downloadServer(latestVersion, {
+    await bedrockServer.downloadServer(downloadVersion, {
       root: parentDir,
-      path: `bds-${latestVersion}`
+      path: `bds-${downloadVersion}`
     });
 
     // Rename to the requested path if different
@@ -87,7 +90,7 @@ export async function ensureBDSInstalled(version: string, bdsPath: string): Prom
       fs.renameSync(npmCreatedDir, bdsPath);
     }
 
-    console.log(`BDS ${latestVersion} installed successfully at ${bdsPath}`);
+    console.log(`BDS ${downloadVersion} installed successfully at ${bdsPath}`);
   } finally {
     // Remove lock file
     if (fs.existsSync(lockFile)) {
@@ -147,7 +150,7 @@ export interface ExternalServer {
 
 function getDefaultOptions(): ExternalServerOptions {
   const workerId = getWorkerId();
-  const version = '1.21.130';
+  const version = process.env.BDS_VERSION || '1.21.130';
   // Each worker gets its own BDS directory to avoid server.properties conflicts
   const baseDir = isWindows ? 'c:/apps' : `${os.homedir()}/apps`;
   const bdsPath = workerId === 0 ? `${baseDir}/bds-${version}` : `${baseDir}/bds-${version}-worker${workerId}`;

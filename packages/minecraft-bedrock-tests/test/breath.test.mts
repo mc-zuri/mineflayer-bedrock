@@ -10,7 +10,7 @@ describe('BDS Integration: Breath', function () {
 
   before(async function () {
     this.timeout(180_000);
-    server = await startExternalServer({ version: '1.21.130' });
+    server = await startExternalServer({ version: process.env.BDS_VERSION || '1.21.130' });
   });
 
   after(async function () {

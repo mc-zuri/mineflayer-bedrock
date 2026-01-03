@@ -44,7 +44,7 @@ describe('BDS Integration: Farming', function () {
   before(async function () {
     this.timeout(180_000);
     server = await startExternalServer({
-      version: '1.21.130',
+      version: process.env.BDS_VERSION || '1.21.130',
     });
   });
 
