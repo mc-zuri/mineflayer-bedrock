@@ -17,6 +17,7 @@
         "format:check": "prettier --check \"**/*.{ts,mts}\""
     },
     "dependencies": {
+        "@nxg-org/mineflayer-static-statemachine": "^0.3.4",
         "bedrock-protocol": "^3.52.0",
         "patch-package": "^8.0.1"
     },
