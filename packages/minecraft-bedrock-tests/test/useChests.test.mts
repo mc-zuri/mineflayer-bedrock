@@ -17,7 +17,7 @@ import {
   getClientInventory,
   type ExternalServer,
   fill,
-} from 'minecraft-bedrock-server';
+} from 'minecraft-bedrock-test-server';
 
 /**
  * Use Chests Test

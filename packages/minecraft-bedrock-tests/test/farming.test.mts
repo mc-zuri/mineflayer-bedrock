@@ -15,7 +15,7 @@ import {
   getClientInventory,
   assertInventoryMatch,
   type ExternalServer,
-} from 'minecraft-bedrock-server';
+} from 'minecraft-bedrock-test-server';
 
 // Helper to wait for block to appear after setBlock
 async function waitForBlock(bot: Bot, pos: Vec3, expectedName: string, timeout = 10000) {

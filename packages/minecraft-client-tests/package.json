@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "bedrock-protocol": "^3.52.0",
-    "minecraft-bedrock-server": "*",
+    "minecraft-bedrock-test-server": "*",
     "minecraft-protocol": "^1.50.0",
     "minecraft-wrap": "^1.5.0",
     "mineflayer": "*",

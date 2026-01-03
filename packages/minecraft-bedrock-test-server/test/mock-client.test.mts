@@ -15,7 +15,7 @@ import {
   tick,
   delay,
   getDataBuilder,
-} from 'minecraft-bedrock-server';
+} from 'minecraft-bedrock-test-server';
 
 describe('MockBedrockClient', function () {
   this.timeout(10000);

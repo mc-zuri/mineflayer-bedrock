@@ -19,7 +19,7 @@ import {
   assertInventoryMatch,
   type ExternalServer,
   type ServerInventoryItem,
-} from 'minecraft-bedrock-server';
+} from 'minecraft-bedrock-test-server';
 
 describe('BDS Integration: Inventory', function () {
   this.timeout(120_000); // BDS tests need longer timeout

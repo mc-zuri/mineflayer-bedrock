@@ -1,6 +1,6 @@
 import { expect } from 'expect';
 import type { Bot } from 'mineflayer';
-import { startExternalServer, connectBotToExternalServer, waitForBotSpawn, sleep, type ExternalServer } from 'minecraft-bedrock-server';
+import { startExternalServer, connectBotToExternalServer, waitForBotSpawn, sleep, type ExternalServer } from 'minecraft-bedrock-test-server';
 
 describe('BDS Integration: Breath', function () {
   this.timeout(120_000);

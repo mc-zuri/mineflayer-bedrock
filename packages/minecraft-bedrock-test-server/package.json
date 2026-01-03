@@ -1,5 +1,5 @@
 {
-  "name": "minecraft-bedrock-server",
+  "name": "minecraft-bedrock-test-server",
   "version": "21.130.0",
   "type": "module",
   "main": "src/index.ts",
@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "bedrock-protocol": "^3.52.0",
-    "csbinary": "^2.1.4"
+    "csbinary": "^2.1.4",
+    "minecraft-bedrock-server": "^1.5.1"
   }
 }

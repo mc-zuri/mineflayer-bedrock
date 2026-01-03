@@ -18,7 +18,7 @@
   "dependencies": {
     "bedrock-protocol": "^3.52.0",
     "csbinary": "^2.1.4",
-    "minecraft-bedrock-server": "*",
+    "minecraft-bedrock-test-server": "*",
     "minecraft-logs-analyzers": "*"
   }
 }

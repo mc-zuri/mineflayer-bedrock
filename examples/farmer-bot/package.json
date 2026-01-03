@@ -12,7 +12,8 @@
   "license": "MIT",
   "dependencies": {
     "mineflayer": "*",
-    "minecraft-bedrock-tests": "*",
+    "minecraft-bedrock-test-server": "*",
+    "minecraft-logs-analyzers": "*",
     "mineflayer-pathfinder": "^2.4.5"
   }
 }

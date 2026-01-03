@@ -3,7 +3,7 @@ import type { Vec3 } from 'vec3';
 import type { ITestServer } from '../abstractions/server.ts';
 import { BaseTestUtilities } from './shared.ts';
 
-// Import Bedrock test utilities from minecraft-bedrock-server
+// Import Bedrock test utilities from minecraft-bedrock-test-server
 import {
   giveItem as bdsGiveItem,
   clearInventory as bdsClearInventory,
@@ -13,7 +13,7 @@ import {
   fill as bdsFill,
   sleep,
   type ExternalServer,
-} from 'minecraft-bedrock-server';
+} from 'minecraft-bedrock-test-server';
 
 /**
  * Bedrock Edition test utilities.

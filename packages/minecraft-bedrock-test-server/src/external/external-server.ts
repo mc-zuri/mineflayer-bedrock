@@ -1,26 +1,31 @@
-import { spawn, execSync, type ChildProcess } from 'child_process';
+import { spawn, type ChildProcess } from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
+import * as os from 'os';
 import { fileURLToPath } from 'url';
-import { createWriteStream } from 'fs';
-import { pipeline } from 'stream/promises';
+// @ts-ignore - minecraft-bedrock-server doesn't have types
+import * as bedrockServer from 'minecraft-bedrock-server';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+const isWindows = os.platform() === 'win32';
+const serverExecutable = isWindows ? 'bedrock_server.exe' : 'bedrock_server';
+
 /**
  * Download BDS server if it doesn't exist.
+ * Uses minecraft-bedrock-server npm package for downloading.
  * Worker 0 downloads; other workers copy from worker 0's installation.
  */
 export async function ensureBDSInstalled(version: string, bdsPath: string): Promise<void> {
-  const serverExe = path.join(bdsPath, 'bedrock_server.exe');
-  const mainBdsPath = `c:/apps/bds-${version}`;
-  const mainServerExe = path.join(mainBdsPath, 'bedrock_server.exe');
+  const serverExePath = path.join(bdsPath, serverExecutable);
+  const defaultBdsPath = isWindows ? `c:/apps/bds-${version}` : `${os.homedir()}/apps/bds-${version}`;
+  const mainServerExe = path.join(defaultBdsPath, serverExecutable);
   const lockFile = path.join(path.dirname(bdsPath), `.bds-download-${version}.lock`);
   const workerId = getWorkerId();
 
   // Check if already installed
-  if (fs.existsSync(serverExe)) {
+  if (fs.existsSync(serverExePath)) {
     return;
   }
 
@@ -36,48 +41,53 @@ export async function ensureBDSInstalled(version: string, bdsPath: string): Prom
 
     // Copy from main installation
     if (fs.existsSync(mainServerExe)) {
-      console.log(`[Worker ${workerId}] Copying BDS from ${mainBdsPath} to ${bdsPath}...`);
-      copyDirSync(mainBdsPath, bdsPath);
+      console.log(`[Worker ${workerId}] Copying BDS from ${defaultBdsPath} to ${bdsPath}...`);
+      copyDirSync(defaultBdsPath, bdsPath);
       console.log(`[Worker ${workerId}] BDS copied successfully`);
       return;
     }
 
-    throw new Error(`BDS not installed at ${mainBdsPath}. Run worker 0 first with autoDownload: true`);
+    throw new Error(`BDS not installed at ${defaultBdsPath}. Run worker 0 first with autoDownload: true`);
   }
 
-  // Worker 0 downloads
-  console.log(`[Worker ${workerId}] BDS not found at ${bdsPath}, downloading version ${version}...`);
+  // Worker 0 downloads using minecraft-bedrock-server npm package
+  console.log(`[Worker ${workerId}] BDS not found at ${bdsPath}, downloading...`);
 
   // Create lock file
   fs.mkdirSync(path.dirname(bdsPath), { recursive: true });
   fs.writeFileSync(lockFile, `downloading by worker ${workerId} at ${new Date().toISOString()}`);
 
   try {
-    const url = `https://minecraft.azureedge.net/bin-win/bedrock-server-${version}.zip`;
-    const zipPath = path.join(path.dirname(bdsPath), `bedrock-server-${version}.zip`);
-
-    // Download using fetch
-    console.log(`Downloading from ${url}...`);
-    const response = await fetch(url);
-    if (!response.ok) {
-      throw new Error(`Failed to download BDS: ${response.status} ${response.statusText}`);
+    // Use minecraft-bedrock-server package to download
+    // Get latest version first
+    const versions = await bedrockServer.getLatestVersions();
+    const platformVersions = isWindows ? versions.windows : versions.linux;
+    const latestVersion = platformVersions?.version4 || platformVersions?.version3;
+    if (!latestVersion) {
+      throw new Error('Failed to get latest BDS version');
     }
+    console.log(`Downloading BDS ${latestVersion} to ${bdsPath}...`);
 
-    // Save to file
-    const fileStream = createWriteStream(zipPath);
-    await pipeline(response.body as any, fileStream);
-    console.log(`Downloaded to ${zipPath}`);
+    // The npm package creates a folder named bds-{version}, so we work around this
+    const parentDir = path.dirname(bdsPath);
+    const targetDirName = path.basename(bdsPath);
+    const npmCreatedDir = path.join(parentDir, `bds-${latestVersion}`);
 
-    // Extract using PowerShell (Windows)
-    console.log(`Extracting to ${bdsPath}...`);
-    fs.mkdirSync(bdsPath, { recursive: true });
-    execSync(`powershell -Command "Expand-Archive -Path '${zipPath}' -DestinationPath '${bdsPath}' -Force"`, {
-      stdio: 'inherit',
+    // Use the npm package's options to control download location
+    await bedrockServer.downloadServer(latestVersion, {
+      root: parentDir,
+      path: `bds-${latestVersion}`
     });
 
-    // Clean up zip
-    fs.unlinkSync(zipPath);
-    console.log(`BDS ${version} installed successfully at ${bdsPath}`);
+    // Rename to the requested path if different
+    if (npmCreatedDir !== bdsPath && fs.existsSync(npmCreatedDir)) {
+      if (fs.existsSync(bdsPath)) {
+        fs.rmSync(bdsPath, { recursive: true });
+      }
+      fs.renameSync(npmCreatedDir, bdsPath);
+    }
+
+    console.log(`BDS ${latestVersion} installed successfully at ${bdsPath}`);
   } finally {
     // Remove lock file
     if (fs.existsSync(lockFile)) {
@@ -139,7 +149,8 @@ function getDefaultOptions(): ExternalServerOptions {
   const workerId = getWorkerId();
   const version = '1.21.130';
   // Each worker gets its own BDS directory to avoid server.properties conflicts
-  const bdsPath = workerId === 0 ? `c:/apps/bds-${version}` : `c:/apps/bds-${version}-worker${workerId}`;
+  const baseDir = isWindows ? 'c:/apps' : `${os.homedir()}/apps`;
+  const bdsPath = workerId === 0 ? `${baseDir}/bds-${version}` : `${baseDir}/bds-${version}-worker${workerId}`;
   return {
     bdsPath,
     version,
@@ -312,9 +323,9 @@ export async function startExternalServer(options?: ExternalServerOptions): Prom
     await ensureBDSInstalled(opts.version, opts.bdsPath);
   }
 
-  const serverExe = path.join(opts.bdsPath, 'bedrock_server.exe');
-  if (!fs.existsSync(serverExe)) {
-    throw new Error(`BDS executable not found at: ${serverExe}. Set autoDownload: true to auto-download.`);
+  const serverExePath = path.join(opts.bdsPath, serverExecutable);
+  if (!fs.existsSync(serverExePath)) {
+    throw new Error(`BDS executable not found at: ${serverExePath}. Set autoDownload: true to auto-download.`);
   }
 
   // Copy fresh world template to BDS worlds folder
@@ -349,7 +360,7 @@ export async function startExternalServer(options?: ExternalServerOptions): Prom
   }> = [];
 
   // Spawn the server process
-  const handle: ChildProcess = spawn(serverExe, [], {
+  const handle: ChildProcess = spawn(serverExePath, [], {
     cwd: opts.bdsPath,
     stdio: ['pipe', 'pipe', 'pipe'],
   });

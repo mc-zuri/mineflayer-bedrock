@@ -1,6 +1,6 @@
 import { expect } from 'expect';
 import type { Bot } from 'mineflayer';
-import { startExternalServer, connectBotToExternalServer, waitForBotSpawn, sleep, setGamemode, type ExternalServer } from 'minecraft-bedrock-server';
+import { startExternalServer, connectBotToExternalServer, waitForBotSpawn, sleep, setGamemode, type ExternalServer } from 'minecraft-bedrock-test-server';
 
 function once(emitter: { once: (event: string, listener: (...args: any[]) => void) => void }, event: string, timeout = 10000): Promise<any[]> {
   return new Promise((resolve, reject) => {

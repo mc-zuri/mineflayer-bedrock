@@ -5,7 +5,7 @@ import {
   type ExternalServerOptions,
   getWorkerPort,
   getWorkerId,
-} from 'minecraft-bedrock-server';
+} from 'minecraft-bedrock-test-server';
 
 export class BedrockRealServer implements ITestServer {
   readonly edition = 'bedrock' as const;

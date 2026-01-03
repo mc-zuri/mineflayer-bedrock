@@ -3,7 +3,7 @@ import { sleep } from 'mineflayer/lib/promise_utils.js';
 import mineflayerPathfinder from 'mineflayer-pathfinder';
 import type { Block } from 'prismarine-block';
 import { Vec3 } from 'vec3';
-import { startBDSServer, ensureBDSInstalled, giveItem, setBlock, teleportPlayer, type BDSServer, getClientInventory, getServerInventory, assertInventoryMatch } from 'minecraft-bedrock-tests';
+import { startExternalServer, ensureBDSInstalled, giveItem, setBlock, teleportPlayer, type ExternalServer, getClientInventory, getServerInventory, assertInventoryMatch } from 'minecraft-bedrock-test-server';
 import { InventoryAnalyzer } from 'minecraft-logs-analyzers';
 
 /** Format timestamp as yyyy-mm-dd-{seconds since midnight} */
@@ -19,7 +19,7 @@ function formatTimestamp(date: Date = new Date()): string {
 const SEARCH_RADIUS = 32;
 const DEPOSIT_THRESHOLD = 128; // 2 full stacks
 const VERSION = '1.21.130';
-const BDS_PATH = `c:/apps/bds-${VERSION}`;
+const BDS_PATH = process.env.BDS_PATH || `${process.env.HOME}/apps/bds-${VERSION}`;
 
 // Farm configuration
 const FARM_BASE_X = 20;
@@ -44,11 +44,11 @@ const host = args[0] || '127.0.0.1';
 const port = parseInt(args[1]) || 19191; // Non-standard port to avoid conflicts
 
 // Global state
-let server: BDSServer | null = null;
+let server: ExternalServer | null = null;
 let bot: Bot | null = null;
 let isFarming = false;
 
-async function setupFarm(server: BDSServer, playerName: string): Promise<void> {
+async function setupFarm(server: ExternalServer, playerName: string): Promise<void> {
   console.log('Setting up farm...');
 
   const baseX = FARM_BASE_X;
@@ -433,13 +433,13 @@ async function depositToChest(itemType: number, itemName: string, count: number)
   }
 }
 
-async function assertInventorySync(context: string, server: BDSServer, bot: any) {
+async function assertInventorySync(context: string, server: ExternalServer, bot: any) {
   const serverInventory = await getServerInventory(server, bot.username);
   const clientInventory = getClientInventory(bot);
   assertInventoryMatch(clientInventory, serverInventory, context);
 }
 
-async function farmingLoop(server: BDSServer, bot: BedrockBot): Promise<void> {
+async function farmingLoop(server: ExternalServer, bot: BedrockBot): Promise<void> {
   if (isFarming) return;
   isFarming = true;
 
@@ -524,7 +524,7 @@ async function main(): Promise<void> {
 
   // Start BDS server
   console.log(`Starting BDS server on port ${port}...`);
-  server = await startBDSServer({ port });
+  server = await startExternalServer({ port, bdsPath: BDS_PATH });
   console.log('BDS server started!');
 
   // Create bot with packet logger

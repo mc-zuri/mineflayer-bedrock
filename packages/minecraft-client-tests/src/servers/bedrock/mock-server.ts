@@ -8,7 +8,7 @@ import {
   setupCommandHandler,
   simulateGive,
   simulateClear,
-} from 'minecraft-bedrock-server';
+} from 'minecraft-bedrock-test-server';
 import type { Server, Player, Version } from 'bedrock-protocol';
 
 // Port counter for unique ports in mock mode

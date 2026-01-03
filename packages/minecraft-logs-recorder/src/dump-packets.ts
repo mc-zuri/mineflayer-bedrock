@@ -3,7 +3,7 @@ import bedrockProtocol, { type Player, type Version } from 'bedrock-protocol';
 const { Relay } = bedrockProtocol;
 
 import { PlayerAuthInputAnalyzer, type IPacketLogger } from 'minecraft-logs-analyzers';
-import { PacketDumpWriter } from 'minecraft-bedrock-server';
+import { PacketDumpWriter } from 'minecraft-bedrock-test-server';
 
 // ============================================================================
 // Utilities
