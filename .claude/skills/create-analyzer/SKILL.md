@@ -107,16 +107,20 @@ grep -rn "move_player" packages/mineflayer/lib/bedrockPlugins/
 
 ## Testing Workflow
 
-### 1. Capture Packets
+### 1. Capture Packets from Real Client
+
+**Critical**: Always capture from the real Minecraft client first to understand the exact packet format.
 
 ```bash
 # Start capture proxy
 npm run start --workspace=minecraft-logs-recorder -- -o ./test-logs
 
-# Connect Minecraft to localhost:19150
-# Perform actions relevant to your analyzer domain
+# Connect Minecraft Bedrock to localhost:19150
+# Perform the exact action you want to implement (crafting, chest interaction, etc.)
 # Disconnect to save logs
 ```
+
+The `.jsonl` file contains processed packets, `.bin` contains raw data for replay.
 
 ### 2. Analyze Captured Logs
 
@@ -174,6 +178,37 @@ cat test-output/replay-{domain}.jsonl | jq -c '.' | head -10
 |--------|------------------|
 | `shouldLog(name, packet)` | Custom filtering (e.g., only log non-empty actions) |
 | `extractFields(direction, name, packet)` | Required - extract relevant fields |
+
+## IMPORTANT: Start with Full Packets
+
+**Always log full packet data initially**, not filtered/summarized data. This was critical for solving crafting implementation:
+
+```typescript
+// BAD: Filtering too early loses critical details
+protected shouldLog(name: string, packet: unknown): boolean {
+  // Only log if it has crafting containers...  ❌
+  return hasCraftingContainer;
+}
+
+// GOOD: Log everything first, filter later
+protected shouldLog(name: string, packet: unknown): boolean {
+  return true;  // ✅ See all packets first
+}
+
+// GOOD: Return full packet data in extractFields
+return {
+  ...base,
+  responses: p.responses,  // ✅ Full data, not summarized
+};
+```
+
+Real client packet captures revealed crucial details that were being filtered out:
+- `craft_recipe_auto` uses `hotbar_and_inventory` container, not `crafting_input`
+- `results_deprecated` action requires `result_items` array with full item data
+- Stack IDs use negative request_id for chained actions
+- `place` goes directly to inventory, not through cursor
+
+**Only add filtering after you fully understand the protocol.**
 
 ## Example: Movement Analyzer
 

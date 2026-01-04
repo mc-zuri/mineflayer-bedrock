@@ -143,6 +143,25 @@ The inventory system is the most complex part of the migration:
 - `initializeClient(client, data)` - Sends initialization packets to connected client
 - Used in `bedrockTest.mts` for integration testing
 
+**Packet Capture for Debugging:**
+When implementing new features or debugging protocol issues, **always start with full packet captures** from the real Minecraft client:
+
+```bash
+# Capture packets using proxy
+npm run start --workspace=minecraft-logs-recorder -- -o ./captures
+
+# Connect Minecraft Bedrock to localhost:19150
+# Perform the action you want to understand (crafting, inventory moves, etc.)
+```
+
+Key insight: Analyzers should log **full packets** initially, not filtered/summarized data. This was critical for solving crafting - the real client's `craft_recipe_auto` format showed:
+- `results_deprecated` action is required with `result_items` array
+- `consume` actions pull from `hotbar_and_inventory`, not `crafting_input`
+- `place` action goes directly to inventory slot, not through cursor
+- Stack IDs use the negative request_id for chained actions
+
+See `packages/minecraft-logs-analyzers/src/analyzers/crafting.ts` for an example of full packet logging.
+
 ### Type System
 
 - Core types: `packages/mineflayer/index.d.ts` defines Bot interface and types
@@ -205,6 +224,19 @@ Requires Node.js >= 22 (uses experimental TypeScript support via --experimental-
 - `prismarine-*` - Core libraries (item, window, entity, block, world, etc.)
 - `mineflayer-pathfinder` - Pathfinding plugin (used in examples)
 - `minecraft-protocol` - Java Edition protocol (in mineflayer package)
+
+## Protocol Issues & Known Bugs
+
+When you discover protocol encoding issues, type mismatches, or other Bedrock-specific bugs:
+
+1. Document them in [KNOWN_ISSUES.md](KNOWN_ISSUES.md)
+2. Include: discovery date, problem description, root cause, fix applied, affected files
+3. This helps track workarounds and potential upstream fixes
+
+Examples of documented issues:
+- Zigzag32 vs varint encoding mismatches (e.g., enchanting option_id)
+- Missing packets compared to Java (e.g., anvil container_open)
+- Type inconsistencies in protocol definitions
 
 ## Logger System
 

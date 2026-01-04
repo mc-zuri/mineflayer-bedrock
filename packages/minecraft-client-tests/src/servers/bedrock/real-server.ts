@@ -6,6 +6,9 @@ import {
   getWorkerPort,
   getWorkerId,
 } from 'minecraft-bedrock-test-server';
+import * as os from 'os';
+
+const isWindows = os.platform() === 'win32';
 
 export class BedrockRealServer implements ITestServer {
   readonly edition = 'bedrock' as const;
@@ -28,10 +31,11 @@ export class BedrockRealServer implements ITestServer {
 
   async start(): Promise<void> {
     const workerId = getWorkerId();
+    const baseDir = isWindows ? 'c:/apps' : `${os.homedir()}/apps`;
     const bdsPath =
       workerId === 0
-        ? `c:/apps/bds-${this.version}`
-        : `c:/apps/bds-${this.version}-worker${workerId}`;
+        ? `${baseDir}/bds-${this.version}`
+        : `${baseDir}/bds-${this.version}-worker${workerId}`;
 
     const options: ExternalServerOptions = {
       bdsPath,

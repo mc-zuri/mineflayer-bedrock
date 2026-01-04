@@ -73,7 +73,7 @@ export abstract class BaseAnalyzer implements IPacketLogger {
   protected createBaseEntry(direction: Direction, name: string): LogEntry {
     return {
       t: Date.now() - this.startTime,
-      tick: this.lastTick || undefined,
+      tick: this.lastTick,
       d: direction,
       p: name,
     };
@@ -113,7 +113,7 @@ export abstract class BaseAnalyzer implements IPacketLogger {
 
     const entry: LogEntry = {
       t: Date.now() - this.startTime,
-      tick: this.lastTick || undefined,
+      tick: this.lastTick,
       d: 'C',
       p: '##',
       msg,

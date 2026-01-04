@@ -15,5 +15,7 @@
   "scripts": {
     "analyze": "node src/analyze-packets.ts"
   },
-  "dependencies": {}
+  "dependencies": {
+    "minimatch": "^10.0.1"
+  }
 }

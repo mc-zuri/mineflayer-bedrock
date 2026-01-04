@@ -1,0 +1,47 @@
+diff --git a/node_modules/prismarine-windows/index.js b/node_modules/prismarine-windows/index.js
+index ff50987..d731a9b 100644
+--- a/node_modules/prismarine-windows/index.js
++++ b/node_modules/prismarine-windows/index.js
+@@ -2,9 +2,41 @@ function loader (registryOrVersion) {
+   const registry = typeof registryOrVersion === 'string' ? require('prismarine-registry')(registryOrVersion) : registryOrVersion
+   const Item = require('prismarine-item')(registry)
+   const Window = require('./lib/Window')(Item, registry)
++  const isBedrock = registry.type === 'bedrock'
+ 
+   let windows
+-  if (registry.supportFeature('village&pillageInventoryWindows')) {
++  if (isBedrock) {
++    // Bedrock Edition - different slot layout than Java
++    // Hotbar at slots 0-8, main inventory at 9-35, armor 36-39, offhand 45
++    windows = {}
++    windows['minecraft:inventory'] = { type: 'minecraft:inventory', inventory: { start: 0, end: 36 }, slots: 46, craft: -1, requireConfirmation: true }
++    // Container windows (chests, etc.)
++    windows['minecraft:generic_9x1'] = { type: 'minecraft:generic_9x1', inventory: { start: 9, end: 44 }, slots: 9 + 36, craft: -1, requireConfirmation: true }
++    windows['minecraft:generic_9x2'] = { type: 'minecraft:generic_9x2', inventory: { start: 18, end: 53 }, slots: 18 + 36, craft: -1, requireConfirmation: true }
++    windows['minecraft:generic_9x3'] = { type: 'minecraft:generic_9x3', inventory: { start: 27, end: 62 }, slots: 27 + 36, craft: -1, requireConfirmation: true }
++    windows['minecraft:generic_9x4'] = { type: 'minecraft:generic_9x4', inventory: { start: 36, end: 71 }, slots: 36 + 36, craft: -1, requireConfirmation: true }
++    windows['minecraft:generic_9x5'] = { type: 'minecraft:generic_9x5', inventory: { start: 45, end: 80 }, slots: 45 + 36, craft: -1, requireConfirmation: true }
++    windows['minecraft:generic_9x6'] = { type: 'minecraft:generic_9x6', inventory: { start: 54, end: 89 }, slots: 54 + 36, craft: -1, requireConfirmation: true }
++    windows['minecraft:generic_3x3'] = { type: 'minecraft:generic_3x3', inventory: { start: 9, end: 44 }, slots: 9 + 36, craft: -1, requireConfirmation: true }
++    // Workstations
++    windows['minecraft:crafting_table'] = { type: 'minecraft:crafting_table', inventory: { start: 10, end: 45 }, slots: 46, craft: 0, requireConfirmation: true }
++    windows['minecraft:furnace'] = { type: 'minecraft:furnace', inventory: { start: 3, end: 38 }, slots: 39, craft: 2, requireConfirmation: true }
++    windows['minecraft:blast_furnace'] = { type: 'minecraft:blast_furnace', inventory: { start: 3, end: 38 }, slots: 39, craft: 2, requireConfirmation: true }
++    windows['minecraft:smoker'] = { type: 'minecraft:smoker', inventory: { start: 3, end: 38 }, slots: 39, craft: 2, requireConfirmation: true }
++    windows['minecraft:anvil'] = { type: 'minecraft:anvil', inventory: { start: 3, end: 38 }, slots: 39, craft: 2, requireConfirmation: true }
++    windows['minecraft:enchantment'] = { type: 'minecraft:enchantment', inventory: { start: 2, end: 37 }, slots: 38, craft: -1, requireConfirmation: true }
++    windows['minecraft:stonecutter'] = { type: 'minecraft:stonecutter', inventory: { start: 2, end: 37 }, slots: 38, craft: 1, requireConfirmation: true }
++    windows['minecraft:smithing'] = { type: 'minecraft:smithing', inventory: { start: 4, end: 39 }, slots: 40, craft: 3, requireConfirmation: true }
++    windows['minecraft:brewing_stand'] = { type: 'minecraft:brewing_stand', inventory: { start: 5, end: 40 }, slots: 41, craft: -1, requireConfirmation: true }
++    windows['minecraft:hopper'] = { type: 'minecraft:hopper', inventory: { start: 5, end: 40 }, slots: 41, craft: -1, requireConfirmation: true }
++    windows['minecraft:dispenser'] = { type: 'minecraft:dispenser', inventory: { start: 9, end: 44 }, slots: 9 + 36, craft: -1, requireConfirmation: true }
++    windows['minecraft:dropper'] = { type: 'minecraft:dropper', inventory: { start: 9, end: 44 }, slots: 9 + 36, craft: -1, requireConfirmation: true }
++    windows['minecraft:shulker_box'] = { type: 'minecraft:shulker_box', inventory: { start: 27, end: 62 }, slots: 63, craft: -1, requireConfirmation: true }
++    windows['minecraft:beacon'] = { type: 'minecraft:beacon', inventory: { start: 1, end: 36 }, slots: 37, craft: -1, requireConfirmation: true }
++    windows['minecraft:grindstone'] = { type: 'minecraft:grindstone', inventory: { start: 3, end: 38 }, slots: 39, craft: 2, requireConfirmation: true }
++    windows['minecraft:loom'] = { type: 'minecraft:loom', inventory: { start: 4, end: 39 }, slots: 40, craft: 3, requireConfirmation: true }
++    windows['minecraft:cartography'] = { type: 'minecraft:cartography', inventory: { start: 3, end: 38 }, slots: 39, craft: 2, requireConfirmation: true }
++  } else if (registry.supportFeature('village&pillageInventoryWindows')) {
+     // https://wiki.vg/Inventory
+     windows = {}
+     let protocolId = -1

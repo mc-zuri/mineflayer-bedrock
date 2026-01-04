@@ -124,6 +124,41 @@ client.on('inventory_slot', (params) => {
 });
 ```
 
+## Re-analyzing Binary Files
+
+To re-run an analyzer on an existing `.bin` file (e.g., after updating analyzer logic):
+
+```bash
+node --experimental-strip-types -e "
+import { PacketDumpReader } from 'minecraft-bedrock-test-server';
+import { CraftingAnalyzer } from 'minecraft-logs-analyzers';
+
+const inputFile = 'path/to/capture.bin';
+const outputBase = inputFile.replace('.bin', '-reanalyzed');
+
+const reader = new PacketDumpReader(inputFile);
+const analyzer = new CraftingAnalyzer(outputBase);
+
+// Direction swap: bin files have S/C swapped due to legacy bug
+const fixDirection = (d) => d === 'S' ? 'C' : 'S';
+
+let count = 0;
+while (reader.canRead()) {
+  const packet = reader.read();
+  if (!packet) break;
+  analyzer.log(fixDirection(packet.type), packet.data.name, packet.data.params);
+  count++;
+}
+
+analyzer.close();
+reader.close();
+console.log('Processed', count, 'packets');
+console.log('Output:', outputBase + '-crafting.jsonl');
+"
+```
+
+Replace `CraftingAnalyzer` with any analyzer class (`InventoryAnalyzer`, etc.). The output filename suffix matches the analyzer's `config.name` property.
+
 ## Available Analyzers
 
 | Analyzer | Description | Logged Packets |
@@ -147,6 +182,55 @@ analyzer.close();
 |---------|---------|
 | `minecraft-logs-recorder` | Packet capture proxy + replay |
 | `minecraft-logs-analyzers` | Analyzer classes + types |
+
+## Reading Binary Log Files
+
+Use `npm run read-log` to read and filter `.bin` packet log files:
+
+```bash
+npm run read-log -- <file.bin> [options]
+
+Options:
+  --tick <n>              Show packets at specific tick
+  --tick-start <n>        Start tick (inclusive)
+  --tick-end <n>          End tick (inclusive)
+  --names                 Output packet names only (default)
+  --full                  Output full packet data (JSON)
+  --include <pattern>     Include only matching packets (glob, comma-separated)
+  --exclude <pattern>     Exclude matching packets (glob, comma-separated)
+  --direction <C|S>       Filter by direction (C=client->server, S=server->client)
+  -h, --help              Show help
+```
+
+### Examples
+
+```bash
+# List all packet names at tick 100
+npm run read-log -- logs/capture.bin --tick 100
+
+# Show full packets from tick 50-100, excluding player_auth_input
+npm run read-log -- logs/capture.bin --tick-start 50 --tick-end 100 --full --exclude player_auth_input
+
+# Show only inventory-related packets
+npm run read-log -- logs/capture.bin --include 'inventory_*,item_stack_*'
+
+# Show clientbound packets only
+npm run read-log -- logs/capture.bin --direction C
+```
+
+### Output Formats
+
+**Names only (default):**
+```
+tick:100 S player_auth_input
+tick:100 S inventory_slot
+tick:100 C mob_equipment
+```
+
+**Full JSON (`--full`):**
+```json
+{"tick":100,"d":"S","p":"inventory_slot","params":{...}}
+```
 
 ## Related Skills
 

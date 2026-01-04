@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:code.visualstudio.com)",
+      "mcp__ide__getDiagnostics",
+      "Bash(pkill:*)",
+      "Bash(npm run read-log:*)",
+      "Bash(npm run analyze-bin:*)",
+      "Bash(cat:*)",
+      "Bash(node -e:*)",
+      "Bash(npx tsc:*)"
+    ]
+  }
+}

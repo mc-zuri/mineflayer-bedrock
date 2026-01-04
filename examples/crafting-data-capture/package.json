@@ -1,0 +1,15 @@
+{
+  "name": "crafting-data-capture",
+  "version": "1.0.0",
+  "description": "Example for capturing crafting-related packets for protocol analysis",
+  "type": "module",
+  "main": "src/main.ts",
+  "scripts": {
+    "start": "node --experimental-strip-types src/main.ts"
+  },
+  "dependencies": {
+    "mineflayer": "*",
+    "minecraft-bedrock-test-server": "*",
+    "minecraft-logs-analyzers": "*"
+  }
+}

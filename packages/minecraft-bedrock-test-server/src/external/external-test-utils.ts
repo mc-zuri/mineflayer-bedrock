@@ -108,6 +108,41 @@ export async function teleportPlayer(server: ExternalServer, player: string, x: 
 }
 
 /**
+ * Teleport a player and wait for the bot to receive the position update.
+ * This is more reliable than teleportPlayer() as it waits for the move_player packet.
+ */
+export async function teleportPlayerAndSync(
+  server: ExternalServer,
+  bot: Bot,
+  x: number,
+  y: number,
+  z: number,
+  timeout = 5000
+): Promise<void> {
+  const positionPromise = new Promise<void>((resolve, reject) => {
+    const timer = setTimeout(() => {
+      reject(new Error('Timeout waiting for position sync after teleport'));
+    }, timeout);
+
+    // Listen for the forcedMove event which is emitted when move_player packet updates position
+    const onForcedMove = () => {
+      clearTimeout(timer);
+      resolve();
+    };
+    bot.once('forcedMove', onForcedMove);
+  });
+
+  // Send teleport command
+  await server.sendCommand(`tp ${bot.username} ${x} ${y} ${z}`);
+
+  // Wait for position to sync
+  await positionPromise;
+
+  // Small delay to ensure all related packets are processed
+  await sleep(50);
+}
+
+/**
  * Set a player's game mode.
  */
 export async function setGamemode(server: ExternalServer, player: string, mode: 'survival' | 'creative' | 'adventure' | 'spectator'): Promise<void> {

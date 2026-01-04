@@ -2,7 +2,7 @@
 import bedrockProtocol, { type Player, type Version } from 'bedrock-protocol';
 const { Relay } = bedrockProtocol;
 
-import { PlayerAuthInputAnalyzer, type IPacketLogger } from 'minecraft-logs-analyzers';
+import { CraftingAnalyzer, type IPacketLogger } from 'minecraft-logs-analyzers';
 import { PacketDumpWriter } from 'minecraft-bedrock-test-server';
 
 // ============================================================================
@@ -197,7 +197,7 @@ function start(config: DumpPacketsConfig): void {
 
     // Generate shared base path for both log files
     const basePath = `${config.logDir}/${config.version}-${formatTimestamp()}`;
-    const logger: IPacketLogger = new PlayerAuthInputAnalyzer(basePath);
+    const logger: IPacketLogger = new CraftingAnalyzer(basePath);
     const writter = new PacketDumpWriter(basePath, config.version);
 
     console.log(`  Writing to: ${basePath}.bin`);

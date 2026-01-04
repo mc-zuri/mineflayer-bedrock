@@ -34,6 +34,7 @@ export {
   giveItem,
   clearInventory,
   teleportPlayer,
+  teleportPlayerAndSync,
   setGamemode,
   setBlock,
   fill,

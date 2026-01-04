@@ -2,3 +2,7 @@ node_modules/
 /packages/mineflayer-tests/tools/**
 /dumps/
 /logs/
+/examples/crafting-data-capture/temp/
+/temp/
+/TASK.MD
+/packages/minecraft-bedrock-tests/temp/

@@ -83,7 +83,10 @@ export async function ensureBDSInstalled(version: string, bdsPath: string): Prom
     });
 
     // Rename to the requested path if different
-    if (npmCreatedDir !== bdsPath && fs.existsSync(npmCreatedDir)) {
+    // Use path.normalize to handle Windows mixed slash issues (e.g., C:\Users/apps vs C:\Users\apps)
+    const normalizedNpmDir = path.normalize(npmCreatedDir);
+    const normalizedBdsPath = path.normalize(bdsPath);
+    if (normalizedNpmDir !== normalizedBdsPath && fs.existsSync(npmCreatedDir)) {
       if (fs.existsSync(bdsPath)) {
         fs.rmSync(bdsPath, { recursive: true });
       }
@@ -153,7 +156,7 @@ function getDefaultOptions(): ExternalServerOptions {
   const version = process.env.BDS_VERSION || '1.21.130';
   // Each worker gets its own BDS directory to avoid server.properties conflicts
   const baseDir = isWindows ? 'c:/apps' : `${os.homedir()}/apps`;
-  const bdsPath = workerId === 0 ? `${baseDir}/bds-${version}` : `${baseDir}/bds-${version}-worker${workerId}`;
+  const bdsPath = path.normalize(workerId === 0 ? `${baseDir}/bds-${version}` : `${baseDir}/bds-${version}-worker${workerId}`);
   return {
     bdsPath,
     version,

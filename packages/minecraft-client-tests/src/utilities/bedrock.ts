@@ -37,8 +37,17 @@ export class BedrockTestUtilities extends BaseTestUtilities {
 
   /** Get the underlying external server for direct access to utilities (real mode only) */
   private get externalServer(): ExternalServer {
-    // The ITestServer wraps ExternalServer - we need to access its methods
-    return this.server as unknown as ExternalServer;
+    // ITestServer uses executeCommand while ExternalServer uses sendCommand
+    // Create an adapter that bridges the two interfaces
+    const server = this.server;
+    return {
+      host: server.host,
+      port: server.port,
+      version: server.version,
+      stop: () => server.stop(),
+      sendCommand: (cmd: string) => server.executeCommand(cmd),
+      waitForOutput: (pattern: RegExp, timeout?: number) => server.waitForOutput(pattern, timeout),
+    };
   }
 
   async clearInventory(): Promise<void> {

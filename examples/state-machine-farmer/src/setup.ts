@@ -71,8 +71,8 @@ async function plantCrops(server: ExternalServer, x: number, y: number, z: numbe
 
 async function placeTree(server: ExternalServer, x: number, y: number, z: number): Promise<void> {
   await setBlock(server, x, y, z, 'dirt');
-  for (let i = 1; i <= 6; i++) {
+  for (let i = 1; i <= 3; i++) {
     await server.sendCommand(`setblock ${x} ${y + i} ${z} oak_log`);
   }
-  await server.sendCommand(`setblock ${x} ${y + 9} ${z} oak_leaves`);
+  await server.sendCommand(`setblock ${x} ${y + 4} ${z} oak_leaves`);
 }
