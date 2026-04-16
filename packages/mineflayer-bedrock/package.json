@@ -18,6 +18,7 @@
     "mineflayer": "^4.0.0",
     "mineflayer-pathfinder": "^2.4.5",
     "minecraft-logs-analyzers": "*",
-    "prismarine-physics": "^1.10.0"
+    "prismarine-physics": "^1.10.0",
+    "socks": "^2.8.3"
   }
 }
