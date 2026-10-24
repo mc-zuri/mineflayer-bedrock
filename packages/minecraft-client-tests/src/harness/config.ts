@@ -28,7 +28,7 @@ export const defaultConfig: TestConfig = {
   modes: ['real'],
   versions: {
     java: '1.21.5',
-    bedrock: '1.21.130',
+    bedrock: '1.26.51',
   },
   timeout: 120000,
   autoDownload: true,
@@ -41,7 +41,7 @@ export const defaultConfig: TestConfig = {
  * - TEST_EDITIONS: Comma-separated list of editions (e.g., "java,bedrock" or "java")
  * - TEST_MODES: Comma-separated list of modes (e.g., "real" or "real,mock")
  * - TEST_JAVA_VERSION: Java version to test (e.g., "1.20.4")
- * - TEST_BEDROCK_VERSION: Bedrock version to test (e.g., "1.21.130")
+ * - TEST_BEDROCK_VERSION: Bedrock version to test (e.g., "1.26.51")
  * - TEST_TIMEOUT: Test timeout in ms
  * - TEST_AUTO_DOWNLOAD: Whether to auto-download servers ("true" or "false")
  */

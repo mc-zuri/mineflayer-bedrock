@@ -19,6 +19,7 @@
     "mineflayer-pathfinder": "^2.4.5",
     "minecraft-logs-analyzers": "*",
     "prismarine-physics": "^1.10.0",
+    "prismarine-viewer": "^1.33.0",
     "socks": "^2.8.3"
   }
 }

@@ -51,7 +51,7 @@ describe('BDS Integration: Chat', function () {
   before(async function () {
     this.timeout(180_000);
     server = await startExternalServer({
-      version: process.env.BDS_VERSION || '1.21.130',
+      version: process.env.BDS_VERSION || '1.26.51',
     });
   });
 
@@ -266,8 +266,17 @@ describe('BDS Integration: Chat', function () {
       await server.sendCommand('op TestBot');
       await sleep(100);
 
-      // Listen for message that might come from command execution
-      const messagePromise = once(bot, 'message', 5000);
+      // Listen for the command's message (others, such as the op's, can come first)
+      const messagePromise = new Promise<[any]>((resolve, reject) => {
+        const timer = setTimeout(() => reject(new Error('Timeout waiting for the command output')), 5000);
+        const listener = (msg: any) => {
+          if (!msg.toString().includes('Hello from command')) return;
+          clearTimeout(timer);
+          bot.off('message', listener);
+          resolve([msg]);
+        };
+        bot.on('message', listener);
+      });
 
       // Run a command that produces output
       bot.chat('/say Hello from command');

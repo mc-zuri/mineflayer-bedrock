@@ -17,7 +17,7 @@
     "mocha_test": "node --experimental-strip-types --no-warnings node_modules/mocha/bin/mocha.js --reporter spec --exit"
   },
   "dependencies": {
-    "bedrock-protocol": "^3.52.0",
+    "bedrock-protocol": "^3.60.1",
     "minecraft-bedrock-test-server": "*",
     "minecraft-protocol": "^1.50.0",
     "minecraft-wrap": "^1.5.0",

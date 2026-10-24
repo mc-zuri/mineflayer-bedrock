@@ -1,19 +1,32 @@
 [submodule "packages/mineflayer"]
 	path = packages/mineflayer
-	url = https://github.com/mc-zuri/mineflayer-bedrock-public.git
+	url = https://github.com/mc-zuri/mineflayer.git
+	branch = pc1_21_9
 [submodule "packages/minecraft-data"]
 	path = packages/minecraft-data
-	url = https://github.com/mc-zuri/node-minecraft-data.git
+	url = https://github.com/mc-zuri/minecraft-data-node.git
+	branch = bedrock-web-viewer
 [submodule "packages/prismarine-viewer"]
 	path = packages/prismarine-viewer
 	url = https://github.com/mc-zuri/prismarine-viewer.git
+	branch = bedrock-web-viewer
 [submodule "packages/prismarine-registry"]
 	path = packages/prismarine-registry
 	url = https://github.com/mc-zuri/prismarine-registry.git
+	branch = bedrock
 [submodule "packages/prismarine-chunk"]
 	path = packages/prismarine-chunk
 	url = https://github.com/mc-zuri/prismarine-chunk.git
-	branch = bugfix/use-blocksByRuntimeId
+	branch = bedrock-1.26.51
 [submodule "packages/node-minecraft-assets"]
 	path = packages/node-minecraft-assets
 	url = https://github.com/mc-zuri/node-minecraft-assets.git
+	branch = bedrock-web-viewer
+[submodule "packages/prismarine-block"]
+	path = packages/prismarine-block
+	url = https://github.com/mc-zuri/prismarine-block.git
+	branch = bedrock-web-viewer
+[submodule "packages/prismarine-physics"]
+	path = packages/prismarine-physics
+	url = https://github.com/mc-zuri/prismarine-physics.git
+	branch = bedrock-1.26.51

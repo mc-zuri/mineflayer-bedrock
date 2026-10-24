@@ -1,6 +1,6 @@
 import * as os from 'os';
 
-export const VERSION = '1.21.130';
+export const VERSION = '1.26.51';
 const isWindows = os.platform() === 'win32';
 export const BDS_PATH = process.env.BDS_PATH || (isWindows ? `c:/apps/bds-${VERSION}` : `${os.homedir()}/apps/bds-${VERSION}`);
 

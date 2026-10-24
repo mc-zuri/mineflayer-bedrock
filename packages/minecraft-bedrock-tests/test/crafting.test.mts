@@ -16,6 +16,7 @@ import {
   teleportPlayerAndSync,
   type ExternalServer,
 } from 'minecraft-bedrock-test-server';
+import { craftingDataRecipes } from 'mineflayer/lib/bedrock/crafting-core.mts';
 
 /**
  * Crafting Integration Tests
@@ -47,7 +48,7 @@ describe('BDS Integration: Crafting', function () {
   before(async function () {
     this.timeout(180_000);
     server = await startExternalServer({
-      version: process.env.BDS_VERSION || '1.21.130',
+      version: process.env.BDS_VERSION || '1.26.51',
     });
   });
 
@@ -97,18 +98,19 @@ describe('BDS Integration: Crafting', function () {
   function setupPacketLogging(bot: Bot) {
     // Capture crafting_data packet (sent once at login)
     bot._client.on('crafting_data', (packet: any) => {
-      craftingDataPacket = packet;
+      // the recipes as one list of { type, recipe } (1.26.40+ sends each kind of recipe in an array of its own)
+      craftingDataPacket = { ...packet, recipes: craftingDataRecipes(packet, bot.registry) };
       capturedPackets.push({
         name: 'crafting_data',
         data: {
-          recipes_count: packet.recipes?.length,
+          recipes_count: craftingDataPacket.recipes.length,
           clear_recipes: packet.clear_recipes,
           // Sample first few recipes
-          sample_recipes: packet.recipes?.slice(0, 5),
+          sample_recipes: craftingDataPacket.recipes.slice(0, 5),
         },
         timestamp: Date.now(),
       });
-      console.log(`[PACKET] crafting_data: ${packet.recipes?.length} recipes`);
+      console.log(`[PACKET] crafting_data: ${craftingDataPacket.recipes.length} recipes`);
     });
 
     // Capture other crafting-related packets

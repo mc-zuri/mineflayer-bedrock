@@ -638,7 +638,7 @@ async function setupWorld(server: ExternalServer, workstation: Workstation): Pro
     await server.sendCommand(`kill @e[type=boat,x=${x},y=${Y},z=${z},r=15]`);
     await server.sendCommand(`kill @e[type=minecart,x=${x},y=${Y},z=${z},r=15]`);
     await server.sendCommand(`kill @e[type=armor_stand,x=${x},y=${Y},z=${z},r=15]`);
-    await server.sendCommand(`kill @e[type=item_frame,x=${x},y=${Y},z=${z},r=15]`);
+    // (Bedrock item frames are blocks, cleared by the air fill above)
   } else if (workstation.name === 'CREATIVE') {
     // Create platform for creative mode testing
     await server.sendCommand(`fill ${x - 5} ${Y - 1} ${z - 3} ${x + 5} ${Y - 1} ${z + 5} stone`);
@@ -1012,12 +1012,7 @@ async function main(): Promise<void> {
 
   await sleep(2000);
 
-  // Set default gamemode for CREATIVE workstation BEFORE player joins
-  if (workstation.name === 'CREATIVE') {
-    console.log('Setting default gamemode to creative...');
-    await server.sendCommand('defaultgamemode creative');
-    await sleep(500);
-  }
+  // (BDS has no defaultgamemode command: the CREATIVE workstation's setup switches the player with gamemode)
 
   // Create relay proxy
   console.log('Starting packet capture relay...');

@@ -24,7 +24,8 @@ export function createFarmingBot(options: FarmingBotOptions): BedrockBot {
     version: `bedrock_${options.version}`,
     // @ts-ignore
     offline: true,
-    username: 'bedrock-bot-1-21-130',
+    // (BDS refuses names longer than 16 characters: invalid_name)
+    username: 'StateFarmerBot',
   }) as unknown as BedrockBot;
 
   bot.once('inject_allowed', () => {

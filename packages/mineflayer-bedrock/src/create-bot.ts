@@ -9,7 +9,7 @@
  *     host: 'server.example',
  *     port: 19132,
  *     username: 'BedrockBot',
- *     version: 'bedrock_1.21.130',
+ *     version: 'bedrock_1.26.51',
  *     auth: 'offline',
  *     proxy: { host: '1.2.3.4', port: 1080, username: 'u', password: 'p' },
  *   });

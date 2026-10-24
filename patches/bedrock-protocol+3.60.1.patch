@@ -1,11 +1,11 @@
 diff --git a/node_modules/bedrock-protocol/index.d.ts b/node_modules/bedrock-protocol/index.d.ts
-index 3f4a571..0a625b5 100644
+index be905a9..4249c24 100644
 --- a/node_modules/bedrock-protocol/index.d.ts
 +++ b/node_modules/bedrock-protocol/index.d.ts
-@@ -192,6 +192,9 @@ declare module 'bedrock-protocol' {
+@@ -231,6 +231,9 @@ declare module 'bedrock-protocol' {
      // Do not disconnect clients on server packet parsing errors and drop the packet instead (default: false)
      omitParseErrors?: boolean
-     
+ 
 +    // the path to store authentication caches, defaults to .minecraft
 +    profilesFolder?: string | false;
 +
@@ -13,10 +13,10 @@ index 3f4a571..0a625b5 100644
      // tokens to join the backend server. Cached after the first login.
      // If this is not specified, the client will be disconnected with a login prompt.
 diff --git a/node_modules/bedrock-protocol/src/connection.js b/node_modules/bedrock-protocol/src/connection.js
-index f1e9051..4496cee 100644
+index de29c86..cf61c77 100644
 --- a/node_modules/bedrock-protocol/src/connection.js
 +++ b/node_modules/bedrock-protocol/src/connection.js
-@@ -85,6 +85,7 @@ class Connection extends EventEmitter {
+@@ -92,6 +92,7 @@ class Connection extends EventEmitter {
      const packet = this.serializer.createPacketBuffer({ name, params })
      batch.addEncodedPacket(packet)
  
@@ -24,19 +24,19 @@ index f1e9051..4496cee 100644
      if (this.encryptionEnabled) {
        this.sendEncryptedBatch(batch)
      } else {
-@@ -109,6 +110,11 @@ class Connection extends EventEmitter {
+@@ -116,6 +117,11 @@ class Connection extends EventEmitter {
      if (this.sendQ.length) {
        const batch = new Framer(this)
        batch.addEncodedPackets(this.sendQ)
 +
-+      for(const buf of this.sendQ){
-+        this.emitWritePacketBuffer(buf);
++      for (const buf of this.sendQ) {
++        this.emitWritePacketBuffer(buf)
 +      }
 +
        this.sendQ = []
        this.sendIds = []
        if (this.encryptionEnabled) {
-@@ -133,6 +139,7 @@ class Connection extends EventEmitter {
+@@ -140,6 +146,7 @@ class Connection extends EventEmitter {
      if (immediate) {
        const batch = new Framer(this)
        batch.addEncodedPacket(buffer)
@@ -44,15 +44,35 @@ index f1e9051..4496cee 100644
        if (this.encryptionEnabled) {
          this.sendEncryptedBatch(batch)
        } else {
-@@ -190,6 +197,11 @@ class Connection extends EventEmitter {
+@@ -197,6 +204,11 @@ class Connection extends EventEmitter {
        throw Error('Bad packet header ' + buffer[0])
      }
    }
 +
-+  emitWritePacketBuffer(buffer){
-+    const {data} = this.deserializer.parsePacketBuffer(buffer);
++  emitWritePacketBuffer (buffer) {
++    const { data } = this.deserializer.parsePacketBuffer(buffer)
 +    this.emit('writePacket', data.name, data.params)
 +  }
  }
  
  module.exports = { ClientStatus, Connection }
+diff --git a/node_modules/bedrock-protocol/src/datatypes/compiler-minecraft.js b/node_modules/bedrock-protocol/src/datatypes/compiler-minecraft.js
+index 7cc076a..4d4a2e5 100644
+--- a/node_modules/bedrock-protocol/src/datatypes/compiler-minecraft.js
++++ b/node_modules/bedrock-protocol/src/datatypes/compiler-minecraft.js
+@@ -142,13 +142,14 @@ SizeOf.encapsulated = ['parametrizable', (compiler, { lengthType, type }) => {
+  * Read NBT until end of buffer or \0
+  */
+ Read.nbtLoop = ['context', (buffer, offset) => {
++  const start = offset
+   const values = []
+   while (buffer[offset] != 0) {
+     const n = ctx.nbt(buffer, offset)
+     values.push(n.value)
+     offset += n.size
+   }
+-  return { value: values, size: buffer.length - offset }
++  return { value: values, size: offset + 1 - start }
+ }]
+ Write.nbtLoop = ['context', (value, buffer, offset) => {
+   for (const val of value) {

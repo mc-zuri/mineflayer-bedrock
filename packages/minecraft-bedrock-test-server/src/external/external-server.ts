@@ -114,7 +114,7 @@ export function getWorkerId(): number {
  * Get a unique port for this worker.
  * Each worker gets a pair of ports (IPv4 and IPv6).
  */
-export function getWorkerPort(basePort = 19132): number {
+export function getWorkerPort(basePort = parseInt(process.env.BDS_BASE_PORT || '19132', 10)): number {
   return basePort + getWorkerId() * 2;
 }
 
@@ -151,9 +151,8 @@ export interface ExternalServer {
   waitForOutput(pattern: RegExp, timeout?: number): Promise<string>;
 }
 
-function getDefaultOptions(): ExternalServerOptions {
+function getDefaultOptions(version = process.env.BDS_VERSION || '1.26.51'): ExternalServerOptions {
   const workerId = getWorkerId();
-  const version = process.env.BDS_VERSION || '1.21.130';
   // Each worker gets its own BDS directory to avoid server.properties conflicts
   const baseDir = isWindows ? 'c:/apps' : `${os.homedir()}/apps`;
   const bdsPath = path.normalize(workerId === 0 ? `${baseDir}/bds-${version}` : `${baseDir}/bds-${version}-worker${workerId}`);
@@ -313,7 +312,7 @@ function setupBehaviorPack(bdsPath: string, worldName: string): void {
 }
 
 export async function startExternalServer(options?: ExternalServerOptions): Promise<ExternalServer> {
-  const opts = { ...getDefaultOptions(), ...options } as Required<ExternalServerOptions>;
+  const opts = { ...getDefaultOptions(options?.version), ...options } as Required<ExternalServerOptions>;
   const workerId = getWorkerId();
 
   if (workerId > 0) {

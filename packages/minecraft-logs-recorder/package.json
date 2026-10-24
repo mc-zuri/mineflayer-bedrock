@@ -16,7 +16,7 @@
     "start": "node --experimental-strip-types --disable-warning=ExperimentalWarning src/dump-packets.ts"
   },
   "dependencies": {
-    "bedrock-protocol": "^3.52.0",
+    "bedrock-protocol": "^3.60.1",
     "csbinary": "^2.1.4",
     "minecraft-bedrock-test-server": "*",
     "minecraft-logs-analyzers": "*"

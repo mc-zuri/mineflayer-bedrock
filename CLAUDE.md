@@ -22,6 +22,20 @@ This is a workspace-based monorepo with packages in `packages/`:
 
 ## Development Commands
 
+### Setup
+
+```bash
+git submodule update --init --recursive
+# packages/minecraft-data/minecraft-data and packages/node-minecraft-assets/minecraft-assets are at mc-zuri fork commits:
+git -C packages/minecraft-data config submodule.minecraft-data.url https://github.com/mc-zuri/minecraft-data.git
+git -C packages/node-minecraft-assets config submodule.minecraft-assets.url https://github.com/mc-zuri/minecraft-assets.git
+# lifecycle scripts off: node-minecraft-assets' prepare (npm install require-self) re-runs the workspace install endlessly
+npm install --ignore-scripts
+npx patch-package                                   # bedrock-protocol and prismarine-windows patches
+npm run generate:data --workspace=minecraft-data    # minecraft-data's data.js
+cd packages/prismarine-viewer && node viewer/prerender.js --versions bedrock_1.26.51 && npx webpack
+```
+
 ### Running the Project
 
 ```bash
@@ -48,6 +62,10 @@ npm run fix           # Auto-fix linting issues
 npm run test:bedrock  # Run Bedrock Edition tests (uses bedrockTest.mts)
 npm run test:bds      # Run BDS integration tests (requires BDS installation)
 ```
+
+BDS tests environment:
+- `BDS_VERSION` - the BDS version to test (default `1.26.51`; supported: 1.21.130, 1.26.0, 1.26.10, 1.26.20, 1.26.30, 1.26.40, 1.26.45, 1.26.51). The server is `c:/apps/bds-<version>`, downloaded when missing
+- `BDS_BASE_PORT` - the first server port (default `19132`, two ports per mocha worker), to keep clear of a server already running
 
 Test files:
 - `packages/mineflayer/test/bedrockTest.mts` - Bedrock Edition bot tests (mock server)

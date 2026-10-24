@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@minecraft/server": "^2.4.0",
-    "bedrock-protocol": "^3.52.0",
+    "bedrock-protocol": "^3.60.1",
     "minecraft-bedrock-test-server": "*",
     "mineflayer": "*",
     "mineflayer-pathfinder": "^2.4.5",

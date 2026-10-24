@@ -38,7 +38,7 @@ const DEFAULTS: DumpPacketsConfig = {
   listenPort: 19150,
   destHost: '127.0.0.1',
   destPort: 19198,
-  version: '1.21.130',
+  version: '1.26.51',
   offline: true,
   profilesFolder: './profiles',
   logDir: './logs',

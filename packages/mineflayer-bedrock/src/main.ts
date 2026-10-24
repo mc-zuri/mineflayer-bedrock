@@ -2,8 +2,9 @@ import { once, sleep } from 'mineflayer/lib/promise_utils.js';
 import mineflayerPathfinder from 'mineflayer-pathfinder';
 import { viewerClickToMovePlugin } from './plugins/viewer-click-to-move.ts';
 import { pathFinderFollowPlugin } from './plugins/pathfinder-follow.ts';
-import type { protocolTypes } from './protocol.js';
+import type { protocolTypes } from 'mineflayer/bedrock-types.js';
 import { bedrockViewerPlugin } from './plugins/bedrock-viewer/index.ts';
+import prismarineViewer from 'prismarine-viewer';
 import { createReplayClient } from 'minecraft-bedrock-test-server';
 import { PlayerAuthInputAnalyzer } from 'minecraft-logs-analyzers';
 import { createBot } from './create-bot.ts';
@@ -15,7 +16,7 @@ const bot = await createBot({
   port: 19132,
   auth: 'offline',
   username: 'BedrockBot',
-  version: 'bedrock_1.21.130',
+  version: 'bedrock_1.26.51',
   profilesFolder: 'C:/git/profiles',
   offline: true,
   // Optional SOCKS5 proxy (must support UDP ASSOCIATE for Bedrock/RakNet).
@@ -57,6 +58,9 @@ bot._client.on('entity_event', async (data: protocolTypes.packet_entity_event) =
 });
 
 bot.once('inject_allowed', () => {
+  // keep what the viewer draws entities with from login on (entity properties, player skins)
+  prismarineViewer.trackBedrock(bot);
+
   console.log('loading pathfinder');
   bot.loadPlugin(mineflayerPathfinder.pathfinder);
   bot.defaultMovements = new mineflayerPathfinder.Movements(bot);

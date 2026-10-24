@@ -6,3 +6,5 @@ node_modules/
 /temp/
 /TASK.MD
 /packages/minecraft-bedrock-tests/temp/
+/examples/crafting-data-capture/bds/
+/examples/crafting-data-capture/profiles/

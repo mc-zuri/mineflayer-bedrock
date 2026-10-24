@@ -5,6 +5,7 @@ import type { Block } from 'prismarine-block';
 import { Vec3 } from 'vec3';
 import { startExternalServer, ensureBDSInstalled, giveItem, setBlock, teleportPlayer, type ExternalServer, getClientInventory, getServerInventory, assertInventoryMatch } from 'minecraft-bedrock-test-server';
 import { InventoryAnalyzer } from 'minecraft-logs-analyzers';
+import * as os from 'os';
 
 /** Format timestamp as yyyy-mm-dd-{seconds since midnight} */
 function formatTimestamp(date: Date = new Date()): string {
@@ -18,8 +19,8 @@ function formatTimestamp(date: Date = new Date()): string {
 // Configuration
 const SEARCH_RADIUS = 32;
 const DEPOSIT_THRESHOLD = 128; // 2 full stacks
-const VERSION = '1.21.130';
-const BDS_PATH = process.env.BDS_PATH || `${process.env.HOME}/apps/bds-${VERSION}`;
+const VERSION = '1.26.51';
+const BDS_PATH = process.env.BDS_PATH || (os.platform() === 'win32' ? `c:/apps/bds-${VERSION}` : `${os.homedir()}/apps/bds-${VERSION}`);
 
 // Farm configuration
 const FARM_BASE_X = 20;
@@ -339,20 +340,25 @@ async function plantSeed(farmlandPos: Vec3, seedName: string, throwOnFail: boole
       heldItem: bot.heldItem?.name,
       heldCount: bot.heldItem?.count,
     });
-    await bot.placeBlock(farmland, new Vec3(0, 1, 0));
-    await sleep(500);
+    // The server refuses an item use when the held stack's count differs from its own, as when a seed picked up from
+    // the harvest reaches it first, so a failed planting is tried again
+    let blockAbove = null;
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      await bot.placeBlock(farmland, new Vec3(0, 1, 0));
+      await sleep(500);
 
-    const blockAbove = bot.blockAt(farmlandPos.offset(0, 1, 0));
-    console.log(`Block above farmland after plant: ${blockAbove?.name}`);
+      blockAbove = bot.blockAt(farmlandPos.offset(0, 1, 0));
+      console.log(`Block above farmland after plant: ${blockAbove?.name}`);
 
-    if (blockAbove && blockAbove.name !== 'air') {
-      bot.packetLogger?.message?.('placeBlock:success', {
-        seed: seedName,
-        pos: [farmlandPos.x, farmlandPos.y, farmlandPos.z],
-        planted: blockAbove.name,
-      });
-      console.log(`Planted ${seedName}!`);
-      return true;
+      if (blockAbove && blockAbove.name !== 'air') {
+        bot.packetLogger?.message?.('placeBlock:success', {
+          seed: seedName,
+          pos: [farmlandPos.x, farmlandPos.y, farmlandPos.z],
+          planted: blockAbove.name,
+        });
+        console.log(`Planted ${seedName}!`);
+        return true;
+      }
     }
 
     bot.packetLogger?.message?.('placeBlock:failed', {

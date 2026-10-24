@@ -40,7 +40,7 @@ Enter number (1-11): 7
 ==================================================
   Capturing: LOOM
 ==================================================
-  Version: 1.21.130
+  Version: 1.26.51
   Scenarios: 2
   Output: ./temp/crafting-capture
 ==================================================
@@ -84,9 +84,9 @@ Enter number (1-11): 7
 Logs saved to `./temp/crafting-capture/`:
 
 ```
-1.21.130-LOOM-2025-01-04-1230-crafting.jsonl
-1.21.130-LOOM-2025-01-04-1230-inventory.jsonl
-1.21.130-LOOM-2025-01-04-1230.bin
+1.26.51-LOOM-2025-01-04-1230-crafting.jsonl
+1.26.51-LOOM-2025-01-04-1230-inventory.jsonl
+1.26.51-LOOM-2025-01-04-1230.bin
 ```
 
 ## Log Format

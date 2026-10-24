@@ -25,6 +25,20 @@ async function waitForBlock(bot: Bot, pos: Vec3, expectedName: string, timeout =
   }, timeout);
 }
 
+// Set a block and wait for the bot to see it. Right after a teleport the server may not have loaded the chunk yet
+// ("Cannot place block outside of the world"), so the command is sent again until the block shows.
+async function setBlockAndWait(server: ExternalServer, bot: Bot, pos: Vec3, name: string, timeout = 10000) {
+  const end = Date.now() + timeout;
+  for (;;) {
+    await setBlock(server, pos.x, pos.y, pos.z, name);
+    try {
+      return await waitForBlock(bot, pos, name, 1000);
+    } catch (e) {
+      if (Date.now() > end) throw e;
+    }
+  }
+}
+
 /**
  * Farming Test Environment
  *
@@ -44,7 +58,7 @@ describe('BDS Integration: Farming', function () {
   before(async function () {
     this.timeout(180_000);
     server = await startExternalServer({
-      version: process.env.BDS_VERSION || '1.21.130',
+      version: process.env.BDS_VERSION || '1.26.51',
     });
   });
 
@@ -85,8 +99,7 @@ describe('BDS Integration: Farming', function () {
       const blockY = 0;
       const blockZ = 60;
       const blockPos = new Vec3(blockX, blockY, blockZ);
-      await setBlock(server, blockX, blockY, blockZ, 'dirt');
-      await waitForBlock(bot, blockPos, 'dirt');
+      await setBlockAndWait(server, bot, blockPos, 'dirt');
 
       // Verify the dirt block exists
       const dirtBlock = bot.blockAt(blockPos);
@@ -120,8 +133,7 @@ describe('BDS Integration: Farming', function () {
 
       // Place a grass block
       const blockPos = new Vec3(blockX, blockY, blockZ);
-      await setBlock(server, blockX, blockY, blockZ, 'grass_block');
-      await waitForBlock(bot, blockPos, 'grass_block');
+      await setBlockAndWait(server, bot, blockPos, 'grass_block');
 
       // Verify grass exists
       const grassBlock = bot.blockAt(blockPos);
@@ -152,8 +164,7 @@ describe('BDS Integration: Farming', function () {
       const blockY = 0;
       const blockZ = 60;
       const blockPos = new Vec3(blockX, blockY, blockZ);
-      await setBlock(server, blockX, blockY, blockZ, 'obsidian');
-      await waitForBlock(bot, blockPos, 'obsidian');
+      await setBlockAndWait(server, bot, blockPos, 'obsidian');
 
       const obsidianBlock = bot.blockAt(blockPos);
       expect(obsidianBlock).toBeTruthy();
@@ -191,8 +202,7 @@ describe('BDS Integration: Farming', function () {
       const blockY = 0;
       const blockZ = 5;
       const blockPos = new Vec3(blockX, blockY, blockZ);
-      await setBlock(server, blockX, blockY, blockZ, 'stone');
-      await waitForBlock(bot, blockPos, 'stone');
+      await setBlockAndWait(server, bot, blockPos, 'stone');
 
       const stoneBlock = bot.blockAt(blockPos);
       expect(stoneBlock).toBeTruthy();

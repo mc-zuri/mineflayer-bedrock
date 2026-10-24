@@ -23,7 +23,7 @@ describe('BDS Integration: Place Block', function () {
 
   before(async function () {
     this.timeout(180_000);
-    server = await startExternalServer({ version: process.env.BDS_VERSION || '1.21.130' });
+    server = await startExternalServer({ version: process.env.BDS_VERSION || '1.26.51' });
   });
 
   after(async function () {
@@ -54,7 +54,7 @@ describe('BDS Integration: Place Block', function () {
 
       // Teleport to clean area
       const basePos = new Vec3(100, 0, 100);
-      await server.sendCommand(`tp "${bot.username}" ${basePos.x} ${basePos.y + 1} ${basePos.z}`);
+      await server.sendCommand(`tp "${bot.username}" ${basePos.x} ${basePos.y + 1} ${basePos.z + 2}`);
       await sleep(500);
 
       // Clear area and place a stone block as reference
@@ -133,7 +133,7 @@ describe('BDS Integration: Place Block', function () {
       this.timeout(30_000);
 
       const basePos = new Vec3(110, 0, 100);
-      await server.sendCommand(`tp "${bot.username}" ${basePos.x} ${basePos.y + 1} ${basePos.z}`);
+      await server.sendCommand(`tp "${bot.username}" ${basePos.x} ${basePos.y + 1} ${basePos.z + 2}`);
       await sleep(500);
 
       await server.sendCommand(`fill ${basePos.x - 2} ${basePos.y} ${basePos.z - 2} ${basePos.x + 2} ${basePos.y + 3} ${basePos.z + 2} air`);
@@ -179,7 +179,7 @@ describe('BDS Integration: Place Block', function () {
       this.timeout(30_000);
 
       const basePos = new Vec3(115, 0, 100);
-      await server.sendCommand(`tp "${bot.username}" ${basePos.x} ${basePos.y + 1} ${basePos.z}`);
+      await server.sendCommand(`tp "${bot.username}" ${basePos.x} ${basePos.y + 1} ${basePos.z + 2}`);
       await sleep(500);
 
       await server.sendCommand(`fill ${basePos.x - 2} ${basePos.y} ${basePos.z - 2} ${basePos.x + 2} ${basePos.y + 3} ${basePos.z + 2} air`);
@@ -217,7 +217,7 @@ describe('BDS Integration: Place Block', function () {
       this.timeout(30_000);
 
       const basePos = new Vec3(120, 0, 100);
-      await server.sendCommand(`tp "${bot.username}" ${basePos.x} ${basePos.y + 1} ${basePos.z}`);
+      await server.sendCommand(`tp "${bot.username}" ${basePos.x} ${basePos.y + 1} ${basePos.z + 2}`);
       await sleep(500);
 
       await server.sendCommand(`fill ${basePos.x - 2} ${basePos.y} ${basePos.z - 2} ${basePos.x + 2} ${basePos.y + 3} ${basePos.z + 2} air`);

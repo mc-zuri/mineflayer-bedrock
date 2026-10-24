@@ -6,7 +6,7 @@ import { dirname, join } from 'path';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-export const VERSION = '1.21.130';
+export const VERSION = '1.26.51';
 
 // BDS path - will auto-download if not present
 export const BDS_PATH = join(__dirname, '..', 'bds');

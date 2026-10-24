@@ -22,7 +22,7 @@ describe('BDS Integration: Bed', function () {
 
   before(async function () {
     this.timeout(180_000);
-    server = await startExternalServer({ version: process.env.BDS_VERSION || '1.21.130' });
+    server = await startExternalServer({ version: process.env.BDS_VERSION || '1.26.51' });
   });
 
   after(async function () {

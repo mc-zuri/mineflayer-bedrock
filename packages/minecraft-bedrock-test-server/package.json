@@ -11,7 +11,7 @@
     "generate-packets": "node --experimental-strip-types scripts/generate-packets.ts"
   },
   "dependencies": {
-    "bedrock-protocol": "^3.52.0",
+    "bedrock-protocol": "^3.60.1",
     "csbinary": "^2.1.4",
     "minecraft-bedrock-server": "^1.5.1"
   }

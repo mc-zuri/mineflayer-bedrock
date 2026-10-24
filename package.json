@@ -4,10 +4,12 @@
     "examples/*"
   ],
   "private": true,
+  "license": "MIT",
   "engines": {
     "node": "^24.0.0"
   },
   "scripts": {
+    "postinstall": "patch-package",
     "start": "node --experimental-strip-types  --disable-warning=ExperimentalWarning packages/mineflayer-bedrock/src/main.ts",
     "test:bedrock": "npm run mocha_test --workspace=mineflayer -- test/bedrockTest.mts",
     "test:bedrock-inventory": "npm run mocha_test --workspace=mineflayer -- test/inventoryTest.mts",
@@ -23,7 +25,7 @@
   },
   "dependencies": {
     "@nxg-org/mineflayer-static-statemachine": "^0.3.4",
-    "bedrock-protocol": "^3.52.0",
+    "bedrock-protocol": "^3.60.1",
     "patch-package": "^8.0.1"
   },
   "devDependencies": {

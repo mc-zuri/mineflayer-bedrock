@@ -35,7 +35,7 @@ declare module 'bedrock-protocol' {
 }
 
 type PacketParamsMap = {
-  [K in keyof protocolTypes.BedrockPacketEventMap]: protocolTypes.BedrockPacketEventMap[K] extends (packet: infer P) => void ? P : never;
+  [K in keyof BedrockPacketEventMap]: BedrockPacketEventMap[K] extends (packet: infer P) => void ? P : never;
 };
 
 type PacketData<K extends keyof PacketParamsMap = keyof PacketParamsMap> = K extends any
